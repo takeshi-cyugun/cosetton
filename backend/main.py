@@ -1,6 +1,6 @@
 import logging
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from supabase import create_client, Client
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -34,6 +34,10 @@ class Item(BaseModel):
     description: Optional[str] = None # descriptionはフロントエンドで使われていませんが、バックエンドモデルに残しておきます
     class Config:
         from_attributes = True
+
+class ItemUpdate(BaseModel):
+    name: Optional[str] = None
+    status: Optional[str] = None
 
 settings = Settings()
 
@@ -86,3 +90,19 @@ def get_items():
     """
     items = fetch_and_log_items()
     return items
+
+@app.put("/items/{item_id}", response_model=Item)
+def update_item(item_id: int, item_update: ItemUpdate):
+    """アイテムの情報を更新する"""
+    try:
+        # exclude_unset=True により、リクエストに含まれるフィールドのみを更新対象にする
+        update_data = item_update.model_dump(exclude_unset=True)
+        response = supabase.table("items").update(update_data).eq("id", item_id).execute()
+        if len(response.data) == 0:
+            raise HTTPException(status_code=404, detail="Item not found")
+        return response.data[0]
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating item {item_id}: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")

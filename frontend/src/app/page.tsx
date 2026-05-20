@@ -18,7 +18,12 @@ const ITEMS_PER_PAGE = 10;
 
 export default function ItemsPage() {
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedName, setEditedName] = useState('');
+  const [editedStatus, setEditedStatus] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [statusFilter, setStatusFilter] = useState<string>('処分済以外');
   const [ownerFilter, setOwnerFilter] = useState<string>('すべて');
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
@@ -47,12 +52,48 @@ export default function ItemsPage() {
     fetchItems();
   }, []);
 
+  // 保存処理
+  const handleSave = async () => {
+    if (!selectedItem) return;
+    try {
+      const response = await fetch(`http://localhost:8000/items/${selectedItem.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name: editedName, status: editedStatus }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Update failed');
+      }
+
+      const updatedItem = await response.json();
+      
+      // ローカルの状態を更新
+      setItems(items.map(item => item.id === updatedItem.id ? updatedItem : item));
+      setSelectedItem(updatedItem);
+      setIsEditing(false);
+    } catch (e) {
+      console.error("Update error:", e);
+      alert('保存に失敗しました');
+    }
+  };
+
   // 所有者のリストを抽出（重複排除）
   const owners = ['すべて', ...Array.from(new Set(items.map(item => item.owner).filter(Boolean)))];
 
   // フィルタリング処理
   const filteredItems = items.filter(item => 
-    ownerFilter === 'すべて' || (item.owner === ownerFilter)
+    (ownerFilter === 'すべて' || item.owner === ownerFilter) && 
+    item.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+    (
+      statusFilter === 'すべて' 
+        ? true 
+        : statusFilter === '処分済以外' 
+          ? item.status !== '処分済' 
+          : item.status === statusFilter
+    )
   );
 
   const totalPages = Math.ceil(filteredItems.length / ITEMS_PER_PAGE);
@@ -78,13 +119,30 @@ export default function ItemsPage() {
             <div className="relative flex-1">
               <input
                 type="text"
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setCurrentPage(1); // 検索ワードが変わったら1ページ目に戻す
+                }}
                 placeholder="名前で検索..."
                 className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-sm shadow-sm"
               />
               <svg className="absolute left-3 top-3 text-slate-400" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
             </div>
-            <select className="px-3 py-2.5 bg-white border border-slate-200 rounded-2xl text-sm shadow-sm focus:outline-none">
-              <option>サイズ</option>
+            <select 
+              value={statusFilter}
+              onChange={(e) => {
+                setStatusFilter(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="px-3 py-2.5 bg-white border border-slate-200 rounded-2xl text-sm shadow-sm focus:outline-none min-w-[100px]"
+            >
+              <option value="すべて">すべて</option>
+              <option value="処分済以外">処分済以外</option>
+              <option value="現役">現役</option>
+              <option value="保管中">保管中</option>
+              <option value="処分予定">処分予定</option>
+              <option value="処分済">処分済</option>
             </select>
           </div>
 
@@ -133,7 +191,9 @@ export default function ItemsPage() {
                 />
                 <span className={`absolute top-2 right-2 px-2 py-0.5 text-[10px] font-bold rounded-lg shadow-sm ${
                   item.status === '現役' ? 'bg-green-500 text-white' : 
-                  item.status === '保管中' ? 'bg-blue-500 text-white' : 'bg-slate-500 text-white'
+                  item.status === '保管中' ? 'bg-blue-500 text-white' : 
+                  item.status === '処分予定' ? 'bg-orange-500 text-white' :
+                  item.status === '処分済' ? 'bg-slate-400 text-white' : 'bg-slate-500 text-white'
                 }`}>
                   {item.status}
                 </span>
@@ -177,11 +237,14 @@ export default function ItemsPage() {
       {selectedItem && (
         <div 
           className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200"
-          onClick={() => setSelectedItem(null)}
+          onClick={() => {
+            setSelectedItem(null);
+            setIsEditing(false);
+          }}
         >
           <div 
             className="bg-white w-full max-w-sm rounded-[2.5rem] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300"
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()} // モーダル内クリックで閉じないように
           >
             <div className="relative aspect-square">
               <img
@@ -190,7 +253,10 @@ export default function ItemsPage() {
                 className="w-full h-full object-cover"
               />
               <button 
-                onClick={() => setSelectedItem(null)}
+                onClick={() => {
+                  setSelectedItem(null);
+                  setIsEditing(false);
+                }}
                 className="absolute top-4 right-4 bg-white/80 backdrop-blur-md w-10 h-10 rounded-full flex items-center justify-center shadow-lg text-slate-800"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -202,7 +268,16 @@ export default function ItemsPage() {
                   <span className="inline-block px-3 py-1 bg-blue-50 text-blue-600 text-xs font-bold rounded-full mb-2">
                     {selectedItem.category}
                   </span>
-                  <h2 className="text-2xl font-bold text-slate-800">{selectedItem.name}</h2>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={editedName}
+                      onChange={(e) => setEditedName(e.target.value)}
+                      className="text-2xl font-bold text-slate-800 border-b-2 border-blue-500 focus:outline-none w-full"
+                    />
+                  ) : (
+                    <h2 className="text-2xl font-bold text-slate-800">{selectedItem.name}</h2>
+                  )}
                 </div>
                 <span className="text-lg font-bold text-slate-400">{selectedItem.size}</span>
               </div>
@@ -214,7 +289,20 @@ export default function ItemsPage() {
                 </div>
                 <div className="bg-slate-50 p-4 rounded-2xl">
                   <p className="text-[10px] text-slate-400 font-bold uppercase mb-1">Status</p>
-                  <p className="text-slate-700 font-bold">{selectedItem.status}</p>
+                  {isEditing ? (
+                    <select
+                      value={editedStatus}
+                      onChange={(e) => setEditedStatus(e.target.value)}
+                      className="w-full bg-transparent text-slate-700 font-bold focus:outline-none border-b border-blue-500"
+                    >
+                      <option value="現役">現役</option>
+                      <option value="保管中">保管中</option>
+                      <option value="処分予定">処分予定</option>
+                      <option value="処分済">処分済</option>
+                    </select>
+                  ) : (
+                    <p className="text-slate-700 font-bold">{selectedItem.status}</p>
+                  )}
                 </div>
                 <div className="bg-slate-50 p-4 rounded-2xl">
                   <p className="text-[10px] text-slate-400 font-bold uppercase mb-1">Owner</p>
@@ -222,9 +310,33 @@ export default function ItemsPage() {
                 </div>
               </div>
               
-              <button className="w-full mt-8 py-4 bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-500/20 active:scale-[0.98] transition-transform">
-                編集する
-              </button>
+              {!isEditing ? (
+                <button 
+                  onClick={() => {
+                    setEditedName(selectedItem.name);
+                    setEditedStatus(selectedItem.status);
+                    setIsEditing(true);
+                  }}
+                  className="w-full mt-8 py-4 bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-500/20 active:scale-[0.98] transition-transform"
+                >
+                  編集する
+                </button>
+              ) : (
+                <div className="flex gap-2 mt-8">
+                  <button 
+                    onClick={() => setIsEditing(false)}
+                    className="flex-1 py-4 bg-slate-100 text-slate-600 rounded-2xl font-bold active:scale-[0.98] transition-transform"
+                  >
+                    キャンセル
+                  </button>
+                  <button 
+                    onClick={handleSave}
+                    className="flex-1 py-4 bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-500/20 active:scale-[0.98] transition-transform"
+                  >
+                    保存
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
