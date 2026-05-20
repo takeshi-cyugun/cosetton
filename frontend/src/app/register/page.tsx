@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, ChangeEvent } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function RegisterPage() {
@@ -12,6 +12,8 @@ export default function RegisterPage() {
   const [status, setStatus] = useState('現役'); // Default status
   const [owner, setOwner] = useState('');
   const [description, setDescription] = useState(''); // Assuming description is also a text input
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -23,15 +25,30 @@ export default function RegisterPage() {
     }
   }, [toast]);
 
+  const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      const file = event.target.files[0];
+      setSelectedImage(file);
+      setImagePreviewUrl(URL.createObjectURL(file));
+    } else {
+      setSelectedImage(null);
+      setImagePreviewUrl(null);
+    }
+  };
+
   const handleRegister = async () => {
     // 簡易バリデーション
-    if (!name || !size || !category || !season || !owner) {
+    if (!selectedImage || !name || !size || !category || !season || !owner) {
       alert('必須項目をすべて入力してください');
       return;
     }
 
     try {
       setIsSubmitting(true);
+      // 現時点では画像アップロードはバックエンドで処理されないため、
+      // ここでは画像データを送信しません。
+      // バックエンドが画像アップロードに対応する際に、FormDataなどを使用して
+      // 画像ファイルを送信するように変更する必要があります。
       const response = await fetch('http://localhost:8000/items', {
         method: 'POST',
         headers: {
@@ -85,6 +102,50 @@ export default function RegisterPage() {
 
       <main className="max-w-md mx-auto px-4 py-4">
         <div className="space-y-6">
+          <div>
+            <label className="flex items-center text-sm font-medium text-slate-700 mb-1">
+              画像
+              <span className="ml-2 px-1.5 py-0.5 bg-red-50 text-red-500 text-[10px] font-bold rounded border border-red-100">必須</span>
+            </label>
+            <div className="text-center"> {/* このdivが子要素を中央揃えにします */}
+              {!selectedImage ? (
+                <div className="flex items-center gap-3 justify-center"> {/* ボタンと隠しinputを中央に配置 */}
+                  <label
+                    htmlFor="image"
+                    className="cursor-pointer inline-flex items-center px-4 py-2 bg-blue-50 text-blue-700 text-sm font-semibold rounded-full hover:bg-blue-100 transition-colors border border-blue-100"
+                  >
+                    画像を選択
+                  </label>
+                  <input
+                    type="file"
+                    id="image"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="hidden"
+                  />
+                </div>
+              ) : (
+                <div className="relative inline-block mt-2"> {/* inline-block要素は親のtext-centerで中央揃えになります */}
+                  <img 
+                    src={imagePreviewUrl || ''} 
+                    alt="Image Preview" 
+                    className="max-w-full h-auto rounded-lg shadow-md object-cover max-h-64" 
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedImage(null);
+                      setImagePreviewUrl(null);
+                    }}
+                    className="absolute -top-2 -right-2 bg-slate-400/60 text-white rounded-full p-1 shadow-lg hover:bg-slate-500/80 transition-colors border-2 border-white"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
           <div>
             <label htmlFor="name" className="flex items-center text-sm font-medium text-slate-700 mb-1">
               名前

@@ -82,7 +82,7 @@ def fetch_and_log_items() -> List[dict]:
     """itemsテーブルから全件取得してログに出力する"""
     logger.info("Fetching all items from Supabase...")
     try:
-        response = supabase.table("items").select("*").execute()
+        response = supabase.table("items").select("*").order("id", desc=True).execute()
         items = response.data
         logger.info(f"Successfully fetched {len(items)} items.")
         for item in items: # ログ出力も詳細化
