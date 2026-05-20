@@ -268,11 +268,8 @@ export default function ItemsPage() {
               </button>
             </div>
             <div className="p-8">
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <span className="inline-block px-3 py-1 bg-blue-50 text-blue-600 text-xs font-bold rounded-full mb-2">
-                    {selectedItem.category}
-                  </span>
+              <div className="flex justify-between items-start mb-2 gap-4">
+                <div className="flex-1 min-w-0">
                   {isEditing ? (
                     <input
                       type="text"
@@ -281,24 +278,22 @@ export default function ItemsPage() {
                       className="text-2xl font-bold text-slate-800 border-b-2 border-blue-500 focus:outline-none w-full"
                     />
                   ) : (
-                    <h2 className="text-2xl font-bold text-slate-800">{selectedItem.name}</h2>
+                    <h2 className="text-2xl font-bold text-slate-800 truncate">{selectedItem.name}</h2>
                   )}
                 </div>
-                <span className="text-lg font-bold text-slate-400">{selectedItem.size}</span>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4 mt-6">
-                <div className="bg-slate-50 p-4 rounded-2xl">
-                  <p className="text-[10px] text-slate-400 font-bold uppercase mb-1">Season</p>
-                  <p className="text-slate-700 font-bold">{selectedItem.season}</p>
-                </div>
-                <div className="bg-slate-50 p-4 rounded-2xl">
-                  <p className="text-[10px] text-slate-400 font-bold uppercase mb-1">Status</p>
+                <div className={`py-1.5 px-3 rounded-xl flex items-center justify-center transition-colors shadow-sm shrink-0 ${
+                  !isEditing ? (
+                    selectedItem.status === '現役' ? 'bg-green-500 text-white' : 
+                    selectedItem.status === '保管中' ? 'bg-blue-500 text-white' : 
+                    selectedItem.status === '処分予定' ? 'bg-orange-500 text-white' :
+                    selectedItem.status === '処分済' ? 'bg-slate-400 text-white' : 'bg-slate-500 text-white'
+                  ) : 'bg-slate-100 border border-slate-200'
+                }`}>
                   {isEditing ? (
                     <select
                       value={editedStatus}
                       onChange={(e) => setEditedStatus(e.target.value)}
-                      className="w-full bg-transparent text-slate-700 font-bold focus:outline-none border-b border-blue-500"
+                      className="bg-transparent text-slate-700 font-bold focus:outline-none text-xs text-center cursor-pointer"
                     >
                       <option value="現役">現役</option>
                       <option value="保管中">保管中</option>
@@ -306,11 +301,29 @@ export default function ItemsPage() {
                       <option value="処分済">処分済</option>
                     </select>
                   ) : (
-                    <p className="text-slate-700 font-bold">{selectedItem.status}</p>
+                    <p className="text-xs font-bold">{selectedItem.status}</p>
                   )}
                 </div>
-                <div className="bg-slate-50 p-4 rounded-2xl col-span-2">
-                  <p className="text-[10px] text-slate-400 font-bold uppercase mb-1">Description</p>
+              </div>
+              <div className="grid grid-cols-2 gap-4 mt-3">
+                <div className="bg-slate-50 py-2.5 px-4 rounded-2xl">
+                  <p className="text-[10px] text-slate-400 font-bold uppercase mb-1">カテゴリー</p>
+                  <p className="text-slate-700 font-bold">{selectedItem.category}</p>
+                </div>
+                <div className="bg-slate-50 py-2.5 px-4 rounded-2xl">
+                  <p className="text-[10px] text-slate-400 font-bold uppercase mb-1">サイズ</p>
+                  <p className="text-slate-700 font-bold">{selectedItem.size}</p>
+                </div>
+                <div className="bg-slate-50 py-2.5 px-4 rounded-2xl">
+                  <p className="text-[10px] text-slate-400 font-bold uppercase mb-1">シーズン</p>
+                  <p className="text-slate-700 font-bold">{selectedItem.season}</p>
+                </div>
+                <div className="bg-slate-50 py-2.5 px-4 rounded-2xl">
+                  <p className="text-[10px] text-slate-400 font-bold uppercase mb-1">所有者</p>
+                  <p className="text-slate-700 font-bold">{selectedItem.owner}</p>
+                </div>
+                <div className="bg-slate-50 py-2.5 px-4 rounded-2xl col-span-2">
+                  <p className="text-[10px] text-slate-400 font-bold uppercase mb-1">説明</p>
                   {isEditing ? (
                     <textarea
                       value={editedDescription}
@@ -324,14 +337,9 @@ export default function ItemsPage() {
                     </p>
                   )}
                 </div>
-
-                <div className="bg-slate-50 p-4 rounded-2xl">
-                  <p className="text-[10px] text-slate-400 font-bold uppercase mb-1">Owner</p>
-                  <p className="text-slate-700 font-bold">{selectedItem.owner}</p>
-                </div>
               </div>
               
-              {!isEditing ? (
+              {!isEditing ? ( 
                 <button 
                   onClick={() => {
                     setEditedName(selectedItem.name);
@@ -339,12 +347,12 @@ export default function ItemsPage() {
                     setEditedStatus(selectedItem.status);
                     setIsEditing(true);
                   }}
-                  className="w-full mt-8 py-4 bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-500/20 active:scale-[0.98] transition-transform"
+                  className="w-full mt-4 py-4 bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-500/20 active:scale-[0.98] transition-transform"
                 >
                   編集する
                 </button>
-              ) : (
-                <div className="flex gap-2 mt-8">
+              ) : ( 
+                <div className="flex gap-2 mt-4">
                   <button 
                     onClick={() => setIsEditing(false)}
                     className="flex-1 py-4 bg-slate-100 text-slate-600 rounded-2xl font-bold active:scale-[0.98] transition-transform"
