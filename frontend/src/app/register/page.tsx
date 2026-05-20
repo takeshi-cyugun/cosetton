@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function RegisterPage() {
@@ -12,27 +12,59 @@ export default function RegisterPage() {
   const [status, setStatus] = useState('現役'); // Default status
   const [owner, setOwner] = useState('');
   const [description, setDescription] = useState(''); // Assuming description is also a text input
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleRegister = () => {
-    // For now, just log the data. Server registration will be in the next step.
-    console.log('登録データ:', {
-      name,
-      size,
-      category,
-      season,
-      status,
-      owner,
-      description,
-    });
-    alert('登録データをコンソールに出力しました。');
-    // Optionally, clear the form or navigate back
-    // setName('');
-    // setSize('');
-    // setCategory('');
-    // setSeason('');
-    // setStatus('現役');
-    // setOwner('');
-    // setDescription('');
+  // エラー通知を自動で消す
+  useEffect(() => {
+    if (toast && toast.type === 'error') {
+      const timer = setTimeout(() => setToast(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
+
+  const handleRegister = async () => {
+    // 簡易バリデーション
+    if (!name || !size || !category || !season || !owner) {
+      alert('必須項目をすべて入力してください');
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      const response = await fetch('http://localhost:8000/items', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name,
+          size,
+          category,
+          season,
+          status,
+          owner,
+          description,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('登録に失敗しました');
+      }
+
+      setToast({ message: '登録が完了しました！', type: 'success' });
+      
+      // トーストを見せるために少し待ってから遷移
+      setTimeout(() => {
+        router.push('/');
+        router.refresh();
+      }, 1500);
+    } catch (e) {
+      console.error("Register error:", e);
+      setToast({ message: 'エラーが発生しました。再度お試しください。', type: 'error' });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -161,12 +193,31 @@ export default function RegisterPage() {
 
           <button
             onClick={handleRegister}
-            className="w-full py-3 bg-blue-600 text-white rounded-lg font-bold shadow-lg shadow-blue-500/20 active:scale-[0.98] transition-transform"
+            disabled={isSubmitting}
+            className={`w-full py-3 text-white rounded-lg font-bold shadow-lg transition-all active:scale-[0.98] ${
+              isSubmitting ? 'bg-slate-400' : 'bg-blue-600 shadow-blue-500/20'
+            }`}
           >
-            登録
+            {isSubmitting ? '登録中...' : '登録'}
           </button>
         </div>
       </main>
+
+      {/* トースト通知 */}
+      {toast && (
+        <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <div className={`px-6 py-3 rounded-2xl shadow-xl font-bold text-white flex items-center gap-2 ${
+            toast.type === 'success' ? 'bg-green-500' : 'bg-red-500'
+          }`}>
+            {toast.type === 'success' ? (
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            )}
+            {toast.message}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

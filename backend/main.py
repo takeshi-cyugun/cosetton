@@ -40,6 +40,15 @@ class ItemUpdate(BaseModel):
     status: Optional[str] = None
     description: Optional[str] = None
 
+class ItemCreate(BaseModel):
+    name: str
+    size: str
+    category: str
+    season: str
+    status: str
+    owner: str
+    description: Optional[str] = None
+
 settings = Settings()
 
 # Supabase クライアントの初期化
@@ -106,4 +115,20 @@ def update_item(item_id: int, item_update: ItemUpdate):
         raise
     except Exception as e:
         logger.error(f"Error updating item {item_id}: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+@app.post("/items", response_model=Item)
+def create_item(item: ItemCreate):
+    """新しいアイテムを登録する"""
+    try:
+        insert_data = item.model_dump()
+        # 画像登録は次のステップのため、一旦プレースホルダー画像をセット
+        insert_data["image"] = "https://via.placeholder.com/150"
+        
+        response = supabase.table("items").insert(insert_data).execute()
+        if len(response.data) == 0:
+            raise HTTPException(status_code=500, detail="Failed to create item")
+        return response.data[0]
+    except Exception as e:
+        logger.error(f"Error creating item: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
