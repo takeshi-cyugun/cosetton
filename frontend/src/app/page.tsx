@@ -15,18 +15,21 @@ interface Item {
 }
 
 const ITEMS_PER_PAGE = 10;
+import { useRouter } from 'next/navigation';
 
 export default function ItemsPage() {
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState('');
   const [editedStatus, setEditedStatus] = useState('');
+  const [editedDescription, setEditedDescription] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState<string>('処分済以外');
   const [ownerFilter, setOwnerFilter] = useState<string>('すべて');
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -61,7 +64,7 @@ export default function ItemsPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name: editedName, status: editedStatus }),
+        body: JSON.stringify({ name: editedName, status: editedStatus, description: editedDescription }),
       });
 
       if (!response.ok) {
@@ -107,7 +110,9 @@ export default function ItemsPage() {
         <div className="max-w-md mx-auto px-4 py-3 flex justify-between items-center">
           <h1 className="text-xl font-bold text-gray-800">洋服一覧</h1>
           <button className="bg-blue-600 active:bg-blue-700 text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-transform active:scale-95">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            <svg onClick={() => router.push('/register')} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
           </button>
         </div>
       </header>
@@ -304,6 +309,22 @@ export default function ItemsPage() {
                     <p className="text-slate-700 font-bold">{selectedItem.status}</p>
                   )}
                 </div>
+                <div className="bg-slate-50 p-4 rounded-2xl col-span-2">
+                  <p className="text-[10px] text-slate-400 font-bold uppercase mb-1">Description</p>
+                  {isEditing ? (
+                    <textarea
+                      value={editedDescription}
+                      onChange={(e) => setEditedDescription(e.target.value)}
+                      rows={3}
+                      className="w-full bg-transparent text-slate-700 font-bold focus:outline-none border-b border-blue-500 resize-y"
+                    ></textarea>
+                  ) : (
+                    <p className="text-slate-700 font-bold whitespace-pre-wrap">
+                      {selectedItem.description || '説明はありません'}
+                    </p>
+                  )}
+                </div>
+
                 <div className="bg-slate-50 p-4 rounded-2xl">
                   <p className="text-[10px] text-slate-400 font-bold uppercase mb-1">Owner</p>
                   <p className="text-slate-700 font-bold">{selectedItem.owner}</p>
@@ -314,6 +335,7 @@ export default function ItemsPage() {
                 <button 
                   onClick={() => {
                     setEditedName(selectedItem.name);
+                    setEditedDescription(selectedItem.description || '');
                     setEditedStatus(selectedItem.status);
                     setIsEditing(true);
                   }}

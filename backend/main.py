@@ -38,6 +38,7 @@ class Item(BaseModel):
 class ItemUpdate(BaseModel):
     name: Optional[str] = None
     status: Optional[str] = None
+    description: Optional[str] = None
 
 settings = Settings()
 
