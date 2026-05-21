@@ -8,7 +8,7 @@ export default function RegisterPage() {
   const [name, setName] = useState('');
   const [size, setSize] = useState('');
   const [category, setCategory] = useState('');
-  const [season, setSeason] = useState('');
+  const [season, setSeason] = useState<string[]>([]); // 複数選択のため配列に変更
   const [status, setStatus] = useState('現役'); // Default status
   const [owner, setOwner] = useState('');
   const [description, setDescription] = useState(''); // Assuming description is also a text input
@@ -38,10 +38,19 @@ export default function RegisterPage() {
     }
   };
 
+  const handleSeasonChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { value, checked } = e.target;
+    setSeason((prev) =>
+      checked ? [...prev, value] : prev.filter((s) => s !== value)
+    );
+  };
+
   const handleRegister = async () => {
     // 簡易バリデーション
-    if (!selectedImage || !name || !size || !category || !season || !owner) {
+    if (!selectedImage || !name || !size || !category || season.length === 0 || !owner) {
       alert('必須項目をすべて入力してください');
+      // 必須項目が未入力の場合、エラーメッセージを表示して処理を中断
+      setToast({ message: '必須項目をすべて入力してください', type: 'error' });
       return;
     }
 
@@ -53,8 +62,8 @@ export default function RegisterPage() {
       formData.append('file', selectedImage); // バックエンドの引数名 'file' と合わせる
       formData.append('name', name);
       formData.append('size', size);
-      formData.append('category', category);
-      formData.append('season', season);
+      formData.append('category', category); // カテゴリーはそのまま
+      formData.append('season', season.join(',')); // 配列をカンマ区切りの文字列に変換
       formData.append('status', status);
       formData.append('owner', owner);
       formData.append('description', description);
@@ -101,7 +110,7 @@ export default function RegisterPage() {
       </header>
 
       <main className="max-w-md mx-auto px-4 py-4">
-        <div className="space-y-6">
+        <div className="space-y-4">
           <div>
             <label className="flex items-center text-sm font-medium text-slate-700 mb-1">
               画像
@@ -192,18 +201,32 @@ export default function RegisterPage() {
           </div>
 
           <div>
-            <label htmlFor="season" className="flex items-center text-sm font-medium text-slate-700 mb-1">
+            <label className="flex items-center text-sm font-medium text-slate-700 mb-2">
               シーズン
               <span className="ml-2 px-1.5 py-0.5 bg-red-50 text-red-500 text-[10px] font-bold rounded border border-red-100">必須</span>
             </label>
-            <input
-              type="text"
-              id="season"
-              value={season}
-              onChange={(e) => setSeason(e.target.value)}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50"
-              placeholder="例: 春夏, 秋冬, 通年"
-            />
+            <div className="flex flex-wrap gap-x-6 gap-y-3 px-1">
+              {['春', '夏', '秋', '冬', '通年'].map((s) => (
+                <label key={s} className="flex items-center gap-2 cursor-pointer group">
+                  <div className="relative flex items-center">
+                    <input
+                      type="checkbox"
+                      value={s}
+                      checked={season.includes(s)}
+                      onChange={handleSeasonChange}
+                      className="w-5 h-5 border-2 border-slate-300 rounded-md checked:bg-blue-600 checked:border-blue-600 appearance-none transition-all cursor-pointer"
+                    />
+                    <svg 
+                      className={`absolute left-0.5 top-0.5 w-4 h-4 text-white pointer-events-none transition-opacity ${season.includes(s) ? 'opacity-100' : 'opacity-0'}`} 
+                      xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"
+                    >
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  </div>
+                  <span className={`text-sm font-bold ${season.includes(s) ? 'text-blue-600' : 'text-slate-500'}`}>{s}</span>
+                </label>
+              ))}
+            </div>
           </div>
 
           <div>
@@ -247,7 +270,7 @@ export default function RegisterPage() {
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              rows={3}
+              rows={2}
               className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 resize-y"
               placeholder="洋服に関するメモなど"
             ></textarea>
