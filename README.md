@@ -1,6 +1,7 @@
 # Closetton (クローゼットン)
 
 [![Next.js](https://img.shields.io/badge/Next.js-14-black)](https://nextjs.org/)
+[![Python](https://img.shields.io/badge/Python-3.10+-3776ab?logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-05998b)](https://fastapi.tiangolo.com/)
 [![Drizzle ORM](https://img.shields.io/badge/Drizzle_ORM-latest-C5F74F)](https://orm.drizzle.team/)
 [![Supabase](https://img.shields.io/badge/Supabase-BaaS-3ecf8e)](https://supabase.com/)
@@ -22,26 +23,25 @@
 
 ```mermaid
 graph LR
-    subgraph "Frontend (Vercel)"
+    subgraph "Frontend"
         NextJS[Next.js App Router]
-        Drizzle[Drizzle ORM]
     end
 
-    subgraph "Backend (API)"
+    subgraph "Backend (Python)"
         FastAPI[FastAPI Server]
+        Pydantic[Pydantic Models]
     end
 
-    subgraph "BaaS (Supabase)"
+    subgraph "Cloud / DB"
         Auth[Supabase Auth]
         DB[(PostgreSQL)]
         Storage[Supabase Storage]
     end
 
-    NextJS --> Auth
-    NextJS --> Drizzle
-    Drizzle --> DB
-    NextJS --> FastAPI
-    FastAPI --> Storage
+    NextJS -- "REST API (JSON)" --> FastAPI
+    FastAPI -- "CRUD / Auth Check" --> DB
+    FastAPI -- "Upload / Download" --> Storage
+    NextJS -- "Session" --> Auth
 ```
 
 ## 🛠 技術スタック
@@ -49,7 +49,7 @@ graph LR
 ### 技術選定の理由
 
 - **Next.js (App Router) & TypeScript**: フロントエンドの型安全性を担保しつつ、Server Components を活用した高速なレンダリングを実現するため。
-- **FastAPI (Python)**: 画像解析や将来的な機械学習（サイズ推論など）の導入を見据え、拡張性とパフォーマンスに優れた Python エコシステムを選択。
+- **Python 3.10+ & FastAPI**: 業務ロジックの核となるバックエンド。将来的な画像解析（OpenCV）や機械学習（サイズ推論）の導入を見据え、エコシステムが豊富な Python を選択。FastAPI の型ヒントを活用し、堅牢な API 開発を実現しています。
 - **Drizzle ORM**: Prisma よりも軽量で SQL ライクな記述が可能であり、TypeScript との親和性が極めて高いため。
 - **Supabase**: 認証・DB・ストレージを統合管理でき、開発速度とコスト効率を最大化するため。
 
@@ -60,10 +60,11 @@ graph LR
 - **Tailwind CSS** を活用したレスポンシブ設計。
 - **Framer Motion**（または CSS Animation）による、カードタップ時のシームレスな拡大アニメーション。
 
-### 2. 型安全なデータ駆動設計
+### 2. Python/FastAPI による堅牢なバックエンド
 
-- **Drizzle ORM** によるスキーマ定義により、データベースからフロントエンドまで一貫した型安全性を確保。
-- **FastAPI × Pydantic** による、厳密なリクエストバリデーション。
+- **中央集権的な CRUD 実装**: 全ての DB 操作を FastAPI 経由で行うことで、ビジネスロジックの一貫性とセキュリティを担保。
+- **Pydantic による厳密なバリデーション**: Python の型ヒントを最大限活用し、不正なデータ入力を未然に防ぐ設計。
+- **非同期 I/O (async/await)**: データベース接続や画像処理を非同期で行うことで、高い同時実行性能を確保。
 
 ### 3. クラウドストレージ連携
 
