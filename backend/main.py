@@ -73,7 +73,11 @@ origins = [
 app = FastAPI(title="Closetton API", lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Next.jsのURLを許可
+    allow_origins=[
+        "http://localhost:3000",
+        "https://closetton.vercel.app", # 自分のVercelのURL（決まっていない場合は後で修正）
+        "*" # テスト用に一時的に全て許可することも可能ですが、公開時は上記のように絞るのが安全です
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
