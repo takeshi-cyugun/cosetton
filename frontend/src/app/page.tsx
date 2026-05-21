@@ -111,8 +111,11 @@ export default function ItemsPage() {
       <header className="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-20 border-b border-slate-200">
         <div className="max-w-md mx-auto px-4 py-3 flex justify-between items-center">
           <h1 className="text-xl font-bold text-gray-800">洋服一覧</h1>
-          <button className="bg-blue-600 active:bg-blue-700 text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-transform active:scale-95">
-            <svg onClick={() => router.push('/register')} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <button 
+            onClick={() => router.push('/register')}
+            className="bg-blue-600 active:bg-blue-700 text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-transform active:scale-95"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>
             </svg>
           </button>

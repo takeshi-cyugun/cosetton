@@ -65,19 +65,18 @@ async def lifespan(app: FastAPI):
         logger.error(f"Startup data fetch failed: {e}")
     yield
 
+app = FastAPI(title="Closetton API", lifespan=lifespan)
+
+# 許可するオリジンのリスト
 origins = [
-    "http://localhost:8000",  # Next.jsフロントエンドのURLを許可
-    # デプロイ環境に応じて、他のオリジンもここに追加してください
+    "http://localhost:3000",
+    "https://closetton.vercel.app",  # TODO: 自分の実際のVercel URLに書き換えてください
 ]
 
-app = FastAPI(title="Closetton API", lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "https://closetton.vercel.app", # 自分のVercelのURL（決まっていない場合は後で修正）
-        "*" # テスト用に一時的に全て許可することも可能ですが、公開時は上記のように絞るのが安全です
-    ],
+    allow_origins=origins,
+    # 開発中のテストでどうしても繋がらない場合のみ、一時的に ["*"] を使用してください
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
