@@ -32,12 +32,14 @@ export default function ItemsPage() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
 
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+
   useEffect(() => {
     const fetchItems = async () => {
       try {
         console.log("Fetching items from API...");
         setLoading(true);
-        const response = await fetch('http://localhost:8000/items');
+        const response = await fetch(`${API_BASE_URL}/items`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -59,7 +61,7 @@ export default function ItemsPage() {
   const handleSave = async () => {
     if (!selectedItem) return;
     try {
-      const response = await fetch(`http://localhost:8000/items/${selectedItem.id}`, {
+      const response = await fetch(`${API_BASE_URL}/items/${selectedItem.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
