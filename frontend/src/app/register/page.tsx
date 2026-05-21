@@ -17,6 +17,8 @@ export default function RegisterPage() {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+
   // エラー通知を自動で消す
   useEffect(() => {
     if (toast && toast.type === 'error') {
@@ -58,6 +60,7 @@ export default function RegisterPage() {
       formData.append('description', description);
 
       const response = await fetch('http://localhost:8000/items', {
+      const response = await fetch(`${API_BASE_URL}/items`, {
         method: 'POST',
         // FormDataをbodyに渡す場合、Content-Typeヘッダーを明示的に指定してはいけません
         body: formData,
