@@ -332,7 +332,7 @@ export default function ItemsPage() {
                       className="w-full bg-transparent text-slate-700 font-bold focus:outline-none border-b border-blue-500 resize-y"
                     ></textarea>
                   ) : (
-                    <p className="text-slate-700 font-bold whitespace-pre-wrap">
+                    <p className={`font-bold whitespace-pre-wrap ${selectedItem.description ? 'text-slate-700' : 'text-slate-400'}`}>
                       {selectedItem.description || '説明はありません'}
                     </p>
                   )}
@@ -347,7 +347,7 @@ export default function ItemsPage() {
                     setEditedStatus(selectedItem.status);
                     setIsEditing(true);
                   }}
-                  className="w-full mt-4 py-4 bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-500/20 active:scale-[0.98] transition-transform"
+                  className="w-full mt-4 py-3 bg-slate-100 text-slate-600 rounded-2xl font-bold active:scale-[0.98] transition-transform hover:bg-slate-200"
                 >
                   編集する
                 </button>

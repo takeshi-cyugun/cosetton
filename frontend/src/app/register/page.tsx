@@ -45,24 +45,22 @@ export default function RegisterPage() {
 
     try {
       setIsSubmitting(true);
-      // 現時点では画像アップロードはバックエンドで処理されないため、
-      // ここでは画像データを送信しません。
-      // バックエンドが画像アップロードに対応する際に、FormDataなどを使用して
-      // 画像ファイルを送信するように変更する必要があります。
+
+      // FormDataを作成し、画像とテキストデータをセット
+      const formData = new FormData();
+      formData.append('file', selectedImage); // バックエンドの引数名 'file' と合わせる
+      formData.append('name', name);
+      formData.append('size', size);
+      formData.append('category', category);
+      formData.append('season', season);
+      formData.append('status', status);
+      formData.append('owner', owner);
+      formData.append('description', description);
+
       const response = await fetch('http://localhost:8000/items', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name,
-          size,
-          category,
-          season,
-          status,
-          owner,
-          description,
-        }),
+        // FormDataをbodyに渡す場合、Content-Typeヘッダーを明示的に指定してはいけません
+        body: formData,
       });
 
       if (!response.ok) {
@@ -194,6 +192,7 @@ export default function RegisterPage() {
           <div>
             <label htmlFor="season" className="flex items-center text-sm font-medium text-slate-700 mb-1">
               シーズン
+              <span className="ml-2 px-1.5 py-0.5 bg-red-50 text-red-500 text-[10px] font-bold rounded border border-red-100">必須</span>
             </label>
             <input
               type="text"

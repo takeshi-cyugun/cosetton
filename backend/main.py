@@ -1,6 +1,7 @@
 import logging
+from datetime import datetime
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, File, UploadFile, Form
 from supabase import create_client, Client
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -118,13 +119,46 @@ def update_item(item_id: int, item_update: ItemUpdate):
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 @app.post("/items", response_model=Item)
-def create_item(item: ItemCreate):
+async def create_item(
+    file: UploadFile = File(...),
+    name: str = Form(...),
+    size: str = Form(...),
+    category: str = Form(...),
+    season: str = Form(...),
+    status: str = Form(...),
+    owner: str = Form(...),
+    description: Optional[str] = Form(None)
+):
     """新しいアイテムを登録する"""
     try:
-        insert_data = item.model_dump()
-        # 画像登録は次のステップのため、一旦プレースホルダー画像をセット
-        insert_data["image"] = "https://via.placeholder.com/150"
-        
+        # 1. 画像ファイルをSupabase Storageにアップロード
+        # ファイル名をユニークにするためにタイムスタンプを付与
+        file_content = await file.read()
+        file_path = f"items/{int(datetime.now().timestamp())}_{file.filename}"
+
+        # バケット名 'closetton' は、あらかじめSupabaseの管理画面で作成しておく必要があります
+        # また、Storageのポリシー（Policy）で読み取りと書き込みを許可してください
+        supabase.storage.from_("closetton").upload(
+            path=file_path,
+            file=file_content,
+            file_options={"content-type": file.content_type}
+        )
+
+        # 2. アップロードした画像の公開URLを取得
+        image_url = supabase.storage.from_("closetton").get_public_url(file_path)
+
+        # 3. データベースに登録
+        insert_data = {
+            "name": name,
+            "size": size,
+            "category": category,
+            "season": season,
+            "status": status,
+            "owner": owner,
+            "description": description,
+            "image": image_url
+        }
+
         response = supabase.table("items").insert(insert_data).execute()
         if len(response.data) == 0:
             raise HTTPException(status_code=500, detail="Failed to create item")
