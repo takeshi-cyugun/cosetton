@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 interface Item {
   id: number;
@@ -28,9 +28,13 @@ export default function ItemsPage() {
   const [statusFilter, setStatusFilter] = useState<string>('処分済以外');
   const [ownerFilter, setOwnerFilter] = useState<string>('すべて');
   const [items, setItems] = useState<Item[]>([]);
+  const [userName, setUserName] = useState('');
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -40,7 +44,8 @@ export default function ItemsPage() {
       router.push('/login');
       return;
     }
-    const { familyId } = JSON.parse(auth);
+    const { familyId, userName: storedName } = JSON.parse(auth);
+    setUserName(storedName);
 
     const fetchItems = async () => {
       try {
@@ -64,6 +69,28 @@ export default function ItemsPage() {
     fetchItems();
   }, [router]);
 
+  // 通知を自動で消す
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
+
+  // メニューの外側をクリックした時に閉じる
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   // 保存処理
   const handleSave = async () => {
     if (!selectedItem) return;
@@ -86,10 +113,17 @@ export default function ItemsPage() {
       setItems(items.map(item => item.id === updatedItem.id ? updatedItem : item));
       setSelectedItem(updatedItem);
       setIsEditing(false);
+      setToast({ message: '変更を保存しました', type: 'success' });
     } catch (e) {
       console.error("Update error:", e);
-      alert('保存に失敗しました');
+      setToast({ message: '保存に失敗しました', type: 'error' });
     }
+  };
+
+  // ログアウト処理
+  const handleLogout = () => {
+    localStorage.removeItem('closetton_auth');
+    router.push('/login');
   };
 
   // 所有者のリストを抽出（重複排除）
@@ -118,14 +152,31 @@ export default function ItemsPage() {
       <header className="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-20 border-b border-slate-200">
         <div className="max-w-md mx-auto px-4 py-3 flex justify-between items-center">
           <h1 className="text-xl font-bold text-gray-800">クローゼット一覧</h1>
-          <button 
-            onClick={() => router.push('/register')}
-            className="bg-blue-600 active:bg-blue-700 text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-transform active:scale-95"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
-          </button>
+          
+          <div className="relative" ref={menuRef}>
+            <button 
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="w-9 h-9 rounded-full bg-blue-100 border border-blue-200 flex items-center justify-center text-blue-700 font-bold text-sm shadow-sm active:scale-90 transition-transform"
+            >
+              {userName ? userName.charAt(0) : 'U'}
+            </button>
+
+            {isMenuOpen && (
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 animate-in fade-in zoom-in-95 duration-200 z-50">
+                <div className="px-4 py-2 border-b border-slate-50">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase">ログイン中</p>
+                  <p className="text-sm font-bold text-slate-700 truncate">{userName} さん</p>
+                </div>
+                <button 
+                  onClick={handleLogout}
+                  className="w-full text-left px-4 py-2.5 text-sm font-bold text-red-500 hover:bg-red-50 transition-colors flex items-center gap-2"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                  ログアウト
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </header>
 
@@ -384,6 +435,16 @@ export default function ItemsPage() {
         </div>
       )}
 
+      {/* 浮遊アクションボタン (FAB) */}
+      <button 
+        onClick={() => router.push('/register')}
+        className="fixed bottom-24 right-6 w-14 h-14 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-2xl shadow-blue-600/40 active:scale-90 transition-all z-40"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+      </button>
+
       {/* スマートフォン向けボトムナビゲーション */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-lg border-t border-slate-200 flex justify-around pt-3 pb-6 px-2 z-30">
         <button className="flex flex-col items-center flex-1 text-blue-600">
@@ -399,6 +460,22 @@ export default function ItemsPage() {
           <span className="text-[10px] mt-1 font-medium">設定</span>
         </button>
       </nav>
+
+      {/* トースト通知 */}
+      {toast && (
+        <div className="fixed bottom-28 left-1/2 -translate-x-1/2 z-50 animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <div className={`px-6 py-3 rounded-2xl shadow-xl font-bold text-white flex items-center gap-2 ${
+            toast.type === 'success' ? 'bg-green-500' : 'bg-red-500'
+          }`}>
+            {toast.type === 'success' ? (
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            )}
+            {toast.message}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

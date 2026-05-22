@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, ChangeEvent } from 'react';
+import React, { useState, useEffect, ChangeEvent, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function RegisterPage() {
@@ -10,6 +10,9 @@ export default function RegisterPage() {
   const [category, setCategory] = useState('');
   const [season, setSeason] = useState<string[]>([]); // 複数選択のため配列に変更
   const [status, setStatus] = useState('現役'); // Default status
+  const [userName, setUserName] = useState('');
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
   const [familyId, setFamilyId] = useState(''); // familyIdを追加
   const [owner, setOwner] = useState('');
   const [description, setDescription] = useState(''); // Assuming description is also a text input
@@ -28,15 +31,37 @@ export default function RegisterPage() {
     }
   }, [toast]);
 
+  // メニューの外側をクリックした時に閉じる
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   // ログイン情報を取得して「所有者」の初期値に設定
   useEffect(() => {
     const auth = localStorage.getItem('closetton_auth');
     if (auth) { // authが存在する場合のみパース
       const { userName, familyId: storedFamilyId } = JSON.parse(auth); // familyIdも取得
+      setUserName(userName);
       setOwner(userName);
       setFamilyId(storedFamilyId); // familyIdを設定
+    } else {
+      router.push('/login');
     }
-  }, []);
+  }, [router]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('closetton_auth');
+    router.push('/login');
+  };
 
   const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -125,7 +150,31 @@ export default function RegisterPage() {
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
           </button>
           <h1 className="text-xl font-bold text-gray-800">洋服登録</h1>
-          <div className="w-6"></div> {/* Spacer */}
+          
+          <div className="relative" ref={menuRef}>
+            <button 
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="w-9 h-9 rounded-full bg-blue-100 border border-blue-200 flex items-center justify-center text-blue-700 font-bold text-sm shadow-sm active:scale-90 transition-transform"
+            >
+              {userName ? userName.charAt(0) : 'U'}
+            </button>
+
+            {isMenuOpen && (
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 animate-in fade-in zoom-in-95 duration-200 z-50">
+                <div className="px-4 py-2 border-b border-slate-50">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase">ログイン中</p>
+                  <p className="text-sm font-bold text-slate-700 truncate">{userName} さん</p>
+                </div>
+                <button 
+                  onClick={handleLogout}
+                  className="w-full text-left px-4 py-2.5 text-sm font-bold text-red-500 hover:bg-red-50 transition-colors flex items-center gap-2"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                  ログアウト
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </header>
 
