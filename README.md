@@ -23,16 +23,16 @@
 
 ```mermaid
 graph LR
-    subgraph "Frontend"
+    subgraph "Frontend (Vercel)"
         NextJS[Next.js App Router]
     end
 
-    subgraph "Backend (Python)"
+    subgraph "Backend (Render.com)"
         FastAPI[FastAPI Server]
         Pydantic[Pydantic Models]
     end
 
-    subgraph "Cloud / DB"
+    subgraph "Cloud / DB (Supabase)"
         Auth[Supabase Auth]
         DB[(PostgreSQL)]
         Storage[Supabase Storage]
@@ -74,6 +74,31 @@ graph LR
 ### 4. 高度なフィルタリング
 
 - 状態（現役・保管・処分）やサイズに応じた動的なクエリ発行。
+
+- **URL**: [https://closetton.vercel.app/](https://closetton.vercel.app/)
+- **ログイン情報**: 家族ID: `demo` / お名前: `demo`
+
+## 画面イメージ
+
+### 1. ログイン画面
+
+家族IDとお名前による認証画面です。特定の家族メンバーのみがクローゼットにアクセスできる安全な入り口を提供します。
+![ログイン画面](frontend/public/login.png)
+
+### 2. クローゼット一覧 (トップ画面)
+
+登録された洋服をカード形式で一覧表示します。名前検索やステータス、所有者による強力なフィルタリング機能により、目的の服をすぐに見つけることができます。
+![トップ画面](frontend/public/top.png)
+
+### 3. 詳細・編集画面
+
+選択したアイテムの詳細情報を確認・更新する画面です。ステータスの変更（現役から保管中へなど）やメモの追記をシームレスに行えます。
+![詳細画面](frontend/public/detail.png)
+
+### 4. 洋服登録画面
+
+新しくアイテムをクローゼットに追加する画面です。画像のアップロードからサイズ・カテゴリの設定まで、スマートフォンから片手で直感的に操作できます。
+![登録画面](frontend/public/register.png)
 
 ## 📂 プロジェクト構成
 
