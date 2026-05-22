@@ -68,7 +68,6 @@ export default function RegisterPage() {
   const handleRegister = async () => {
     // 簡易バリデーション
     if (!selectedImage || !name || !size || !category || season.length === 0 || !owner || !familyId) { // familyIdのバリデーションを追加
-      alert('必須項目をすべて入力してください');
       // 必須項目が未入力の場合、エラーメッセージを表示して処理を中断
       setToast({ message: '必須項目をすべて入力してください', type: 'error' });
       return;

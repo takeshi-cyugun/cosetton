@@ -117,7 +117,7 @@ export default function ItemsPage() {
       {/* ヘッダー */}
       <header className="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-20 border-b border-slate-200">
         <div className="max-w-md mx-auto px-4 py-3 flex justify-between items-center">
-          <h1 className="text-xl font-bold text-gray-800">洋服一覧</h1>
+          <h1 className="text-xl font-bold text-gray-800">クローゼット一覧</h1>
           <button 
             onClick={() => router.push('/register')}
             className="bg-blue-600 active:bg-blue-700 text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-transform active:scale-95"
