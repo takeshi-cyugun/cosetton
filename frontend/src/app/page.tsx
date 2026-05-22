@@ -35,11 +35,18 @@ export default function ItemsPage() {
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
   useEffect(() => {
+    const auth = localStorage.getItem('closetton_auth');
+    if (!auth) {
+      router.push('/login');
+      return;
+    }
+    const { familyId } = JSON.parse(auth);
+
     const fetchItems = async () => {
       try {
         console.log("Fetching items from API...");
         setLoading(true);
-        const response = await fetch(`${API_BASE_URL}/items`);
+        const response = await fetch(`${API_BASE_URL}/items?familyId=${familyId}`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -55,7 +62,7 @@ export default function ItemsPage() {
       }
     };
     fetchItems();
-  }, []);
+  }, [router]);
 
   // 保存処理
   const handleSave = async () => {

@@ -32,6 +32,7 @@ class Item(BaseModel):
     status: str
     image: str
     owner: str
+    family_id: str
     description: Optional[str] = None # descriptionはフロントエンドで使われていませんが、バックエンドモデルに残しておきます
     class Config:
         from_attributes = True
@@ -47,6 +48,7 @@ class ItemCreate(BaseModel):
     category: str
     season: str
     status: str
+    family_id: str
     owner: str
     description: Optional[str] = None
 
@@ -82,27 +84,30 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-def fetch_and_log_items() -> List[dict]:
+def fetch_and_log_items(family_id: Optional[str] = None) -> List[dict]:
     """itemsテーブルから全件取得してログに出力する"""
-    logger.info("Fetching all items from Supabase...")
+    logger.info(f"Fetching items from Supabase (family_id: {family_id})...")
     try:
-        response = supabase.table("items").select("*").order("id", desc=True).execute()
+        query = supabase.table("items").select("*")
+        if family_id:
+            query = query.eq("family_id", family_id)
+        response = query.order("id", desc=True).execute()
         items = response.data
         logger.info(f"Successfully fetched {len(items)} items.")
         for item in items: # ログ出力も詳細化
-            logger.info(f"Item ID: {item.get('id')} - Name: {item.get('name')} - Owner: {item.get('owner')} - Status: {item.get('status')}")
+            logger.info(f"Item ID: {item.get('id')} - Family: {item.get('family_id')} - Name: {item.get('name')} - Owner: {item.get('owner')} - Status: {item.get('status')}")
         return items
     except Exception as e:
         logger.error(f"Error fetching items: {e}")
         return []
 
 @app.get("/items", response_model=List[Item])
-def get_items():
+def get_items(familyId: Optional[str] = None):
     """
     Supabaseの同期クライアントを使用しているため、
     FastAPIでは 'def' で定義することで外部スレッドで安全に実行されます。
     """
-    items = fetch_and_log_items()
+    items = fetch_and_log_items(familyId)
     return items
 
 @app.put("/items/{item_id}", response_model=Item)
@@ -129,6 +134,7 @@ async def create_item(
     category: str = Form(...),
     season: str = Form(...),
     status: str = Form(...),
+    familyId: str = Form(...),
     owner: str = Form(...),
     description: Optional[str] = Form(None)
 ):
@@ -157,6 +163,7 @@ async def create_item(
             "category": category,
             "season": season,
             "status": status,
+            "family_id": familyId,
             "owner": owner,
             "description": description,
             "image": image_url

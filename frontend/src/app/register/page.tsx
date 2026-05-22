@@ -10,6 +10,7 @@ export default function RegisterPage() {
   const [category, setCategory] = useState('');
   const [season, setSeason] = useState<string[]>([]); // 複数選択のため配列に変更
   const [status, setStatus] = useState('現役'); // Default status
+  const [familyId, setFamilyId] = useState(''); // familyIdを追加
   const [owner, setOwner] = useState('');
   const [description, setDescription] = useState(''); // Assuming description is also a text input
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
@@ -30,9 +31,10 @@ export default function RegisterPage() {
   // ログイン情報を取得して「所有者」の初期値に設定
   useEffect(() => {
     const auth = localStorage.getItem('closetton_auth');
-    if (auth) {
-      const { userName } = JSON.parse(auth);
+    if (auth) { // authが存在する場合のみパース
+      const { userName, familyId: storedFamilyId } = JSON.parse(auth); // familyIdも取得
       setOwner(userName);
+      setFamilyId(storedFamilyId); // familyIdを設定
     }
   }, []);
 
@@ -65,7 +67,7 @@ export default function RegisterPage() {
 
   const handleRegister = async () => {
     // 簡易バリデーション
-    if (!selectedImage || !name || !size || !category || season.length === 0 || !owner) {
+    if (!selectedImage || !name || !size || !category || season.length === 0 || !owner || !familyId) { // familyIdのバリデーションを追加
       alert('必須項目をすべて入力してください');
       // 必須項目が未入力の場合、エラーメッセージを表示して処理を中断
       setToast({ message: '必須項目をすべて入力してください', type: 'error' });
@@ -83,6 +85,7 @@ export default function RegisterPage() {
       formData.append('category', category); // カテゴリーはそのまま
       formData.append('season', season.join(',')); // 配列をカンマ区切りの文字列に変換
       formData.append('status', status);
+      formData.append('familyId', familyId); // familyIdを追加
       formData.append('owner', owner);
       formData.append('description', description);
 
