@@ -40,9 +40,18 @@ export default function RegisterPage() {
 
   const handleSeasonChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { value, checked } = e.target;
-    setSeason((prev) =>
-      checked ? [...prev, value] : prev.filter((s) => s !== value)
-    );
+    if (!checked) {
+      setSeason((prev) => prev.filter((s) => s !== value));
+      return;
+    }
+
+    if (value === '通年') {
+      setSeason(['通年']);
+    } else if (value === '春' || value === '夏') {
+      setSeason((prev) => [...prev.filter((s) => s === '春' || s === '夏'), value]);
+    } else if (value === '秋' || value === '冬') {
+      setSeason((prev) => [...prev.filter((s) => s === '秋' || s === '冬'), value]);
+    }
   };
 
   const handleRegister = async () => {
@@ -214,7 +223,12 @@ export default function RegisterPage() {
                       value={s}
                       checked={season.includes(s)}
                       onChange={handleSeasonChange}
-                      className="w-5 h-5 border-2 border-slate-300 rounded-md checked:bg-blue-600 checked:border-blue-600 appearance-none transition-all cursor-pointer"
+                      disabled={
+                        (season.includes('通年') && s !== '通年') ||
+                        ((season.includes('春') || season.includes('夏')) && !['春', '夏'].includes(s)) ||
+                        ((season.includes('秋') || season.includes('冬')) && !['秋', '冬'].includes(s))
+                      }
+                      className="w-5 h-5 border-2 border-slate-300 rounded-md checked:bg-blue-600 checked:border-blue-600 appearance-none transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
                     />
                     <svg 
                       className={`absolute left-0.5 top-0.5 w-4 h-4 text-white pointer-events-none transition-opacity ${season.includes(s) ? 'opacity-100' : 'opacity-0'}`} 

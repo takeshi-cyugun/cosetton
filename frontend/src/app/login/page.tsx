@@ -11,23 +11,23 @@ export default function LoginPage() {
         <div className="mt-8 space-y-6">
           <div className="rounded-md shadow-sm space-y-4">
             <div>
-              <label htmlFor="email" className="block text-sm font-bold text-slate-700 mb-1.5 ml-1">メールアドレス</label>
+              <label htmlFor="familyId" className="block text-sm font-bold text-slate-700 mb-1.5 ml-1">家族ID</label>
               <input
-                id="email"
-                type="email"
+                id="familyId"
+                type="text"
                 required
                 className="appearance-none relative block w-full px-4 py-3.5 border border-slate-200 bg-slate-50/50 placeholder-slate-400 text-slate-900 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:z-10 text-[16px] transition-all"
-                placeholder="mail@example.com"
+                placeholder="例: yamada-family"
               />
             </div>
             <div>
-              <label htmlFor="password" title="password" className="block text-sm font-bold text-slate-700 mb-1.5 ml-1">パスワード</label>
+              <label htmlFor="userName" className="block text-sm font-bold text-slate-700 mb-1.5 ml-1">お名前</label>
               <input
-                id="password"
-                type="password"
+                id="userName"
+                type="text"
                 required
                 className="appearance-none relative block w-full px-4 py-3.5 border border-slate-200 bg-slate-50/50 placeholder-slate-400 text-slate-900 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:z-10 text-[16px] transition-all"
-                placeholder="••••••••"
+                placeholder="例: たろう"
               />
             </div>
           </div>
