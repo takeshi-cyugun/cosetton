@@ -27,6 +27,15 @@ export default function RegisterPage() {
     }
   }, [toast]);
 
+  // ログイン情報を取得して「所有者」の初期値に設定
+  useEffect(() => {
+    const auth = localStorage.getItem('closetton_auth');
+    if (auth) {
+      const { userName } = JSON.parse(auth);
+      setOwner(userName);
+    }
+  }, []);
+
   const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
