@@ -75,6 +75,10 @@ graph LR
 
 - 状態（現役・保管・処分）やサイズに応じた動的なクエリ発行。
 
+## 🔗 デモサイト
+
+以下のURLからどなたでも自由にお試しいただけます。
+
 - **URL**: [https://closetton.vercel.app/](https://closetton.vercel.app/)
 - **ログイン情報**: 家族ID: `demo` / お名前: `demo`
 
