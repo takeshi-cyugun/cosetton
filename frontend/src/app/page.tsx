@@ -136,10 +136,14 @@ export default function ItemsPage() {
   const seasons = ['通年', '春', '夏', '秋', '冬'];
 
   // フィルタリング処理
+  const searchWords = searchQuery.trim().toLowerCase().split(/[\s　]+/).filter(Boolean);
   const filteredItems = items.filter(item => 
     (ownerFilter === 'すべて' || item.owner === ownerFilter) &&
     (seasonFilter === '通年' || item.season === '通年' || item.season?.includes(seasonFilter)) &&
-    item.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+    searchWords.every(word =>
+      item.name.toLowerCase().includes(word) ||
+      item.category.toLowerCase().includes(word)
+    ) &&
     (
       statusFilter === 'すべて' 
         ? true 
@@ -198,7 +202,7 @@ export default function ItemsPage() {
                   setSearchQuery(e.target.value);
                   setCurrentPage(1); // 検索ワードが変わったら1ページ目に戻す
                 }}
-                placeholder="名前で検索..."
+                placeholder="名前やカテゴリで検索..."
                 className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-sm shadow-sm"
               />
               <svg className="absolute left-3 top-3 text-slate-400" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
@@ -207,6 +211,7 @@ export default function ItemsPage() {
           {/* フィルタエリア (プルダウン形式) */}
           <div className="flex flex-wrap gap-x-3 gap-y-4 items-end min-h-[40px] relative z-10">
             {/* 所有者フィルタ */}
+            {owners.length > 2 && (
             <div className="flex flex-col gap-1 shrink-0">
               <span className="text-[10px] font-bold text-slate-400 ml-1">所有者</span>
               <div className="relative">
@@ -252,6 +257,7 @@ export default function ItemsPage() {
               )}
               </div>
             </div>
+            )}
 
             {/* シーズンフィルタ */}
             <div className="flex flex-col gap-1 shrink-0">
