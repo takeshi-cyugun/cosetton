@@ -30,6 +30,7 @@ export default function ItemsPage() {
   const [isOwnerFilterExpanded, setIsOwnerFilterExpanded] = useState(false);
   const [seasonFilter, setSeasonFilter] = useState<string>('通年');
   const [isSeasonFilterExpanded, setIsSeasonFilterExpanded] = useState(false);
+  const [isStatusFilterExpanded, setIsStatusFilterExpanded] = useState(false);
   const [items, setItems] = useState<Item[]>([]);
   const [userName, setUserName] = useState('');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -189,8 +190,7 @@ export default function ItemsPage() {
       <main className="max-w-md mx-auto px-4 py-4">
         {/* 簡易検索・フィルタ */}
         <div className="mb-6 space-y-3">
-          <div className="flex gap-2">
-            <div className="relative flex-1">
+          <div className="relative">
               <input
                 type="text"
                 value={searchQuery}
@@ -202,36 +202,23 @@ export default function ItemsPage() {
                 className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-sm shadow-sm"
               />
               <svg className="absolute left-3 top-3 text-slate-400" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-            </div>
-            <select 
-              value={statusFilter}
-              onChange={(e) => {
-                setStatusFilter(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="px-3 py-2.5 bg-white border border-slate-200 rounded-2xl text-sm shadow-sm focus:outline-none min-w-[100px]"
-            >
-              <option value="すべて">すべて</option>
-              <option value="処分済以外">処分済以外</option>
-              <option value="現役">現役</option>
-              <option value="保管中">保管中</option>
-              <option value="処分予定">処分予定</option>
-              <option value="処分済">処分済</option>
-            </select>
           </div>
 
           {/* フィルタエリア (プルダウン形式) */}
-          <div className="flex flex-wrap gap-2 items-center min-h-[40px] relative z-10">
+          <div className="flex flex-wrap gap-x-3 gap-y-4 items-end min-h-[40px] relative z-10">
             {/* 所有者フィルタ */}
-            <div className="relative shrink-0">
+            <div className="flex flex-col gap-1 shrink-0">
+              <span className="text-[10px] font-bold text-slate-400 ml-1">所有者</span>
+              <div className="relative">
               <button
                 onClick={() => {
                   setIsOwnerFilterExpanded(!isOwnerFilterExpanded);
                   setIsSeasonFilterExpanded(false);
+                  setIsStatusFilterExpanded(false);
                 }}
                 className="px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all bg-emerald-600 text-white shadow-md shadow-emerald-500/20 flex items-center gap-1.5 shrink-0 active:scale-95"
               >
-                <span className="opacity-70 font-medium text-[10px]">所有者:</span> {ownerFilter}
+                {ownerFilter}
                 <svg 
                   xmlns="http://www.w3.org/2000/svg" 
                   width="14" height="14" 
@@ -263,18 +250,22 @@ export default function ItemsPage() {
                   ))}
                 </div>
               )}
+              </div>
             </div>
 
             {/* シーズンフィルタ */}
-            <div className="relative shrink-0">
+            <div className="flex flex-col gap-1 shrink-0">
+              <span className="text-[10px] font-bold text-slate-400 ml-1">シーズン</span>
+              <div className="relative">
               <button
                 onClick={() => {
                   setIsSeasonFilterExpanded(!isSeasonFilterExpanded);
                   setIsOwnerFilterExpanded(false);
+                  setIsStatusFilterExpanded(false);
                 }}
                 className="px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all bg-blue-600 text-white shadow-md shadow-blue-500/20 flex items-center gap-1.5 shrink-0 active:scale-95"
               >
-                <span className="opacity-70 font-medium text-[10px]">シーズン:</span> {seasonFilter}
+                {seasonFilter}
                 <svg 
                   xmlns="http://www.w3.org/2000/svg" 
                   width="14" height="14" 
@@ -306,6 +297,54 @@ export default function ItemsPage() {
                   ))}
                 </div>
               )}
+              </div>
+            </div>
+
+            {/* ステータスフィルタ */}
+            <div className="flex flex-col gap-1 shrink-0">
+              <span className="text-[10px] font-bold text-slate-400 ml-1">ステータス</span>
+              <div className="relative">
+              <button
+                onClick={() => {
+                  setIsStatusFilterExpanded(!isStatusFilterExpanded);
+                  setIsOwnerFilterExpanded(false);
+                  setIsSeasonFilterExpanded(false);
+                }}
+                className="px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all bg-indigo-600 text-white shadow-md shadow-indigo-500/20 flex items-center gap-1.5 shrink-0 active:scale-95"
+              >
+                {statusFilter}
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  width="14" height="14" 
+                  viewBox="0 0 24 24" fill="none" 
+                  stroke="currentColor" strokeWidth="3" 
+                  strokeLinecap="round" strokeLinejoin="round"
+                  className={`transition-transform duration-200 ${isStatusFilterExpanded ? 'rotate-180' : ''}`}
+                >
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </button>
+
+              {isStatusFilterExpanded && (
+                <div className="absolute top-full left-0 mt-2 w-40 bg-white border border-slate-200 rounded-2xl shadow-xl py-1 animate-in slide-in-from-top-2 fade-in duration-200 z-50">
+                  {['すべて', '処分済以外', '現役', '保管中', '処分予定', '処分済'].map(status => (
+                    <button
+                      key={status}
+                      onClick={() => {
+                        setStatusFilter(status);
+                        setCurrentPage(1);
+                        setIsStatusFilterExpanded(false);
+                      }}
+                      className={`w-full text-left px-4 py-2.5 text-xs font-bold transition-colors ${
+                        statusFilter === status ? 'text-indigo-600 bg-indigo-50' : 'text-slate-600 hover:bg-slate-50'
+                      }`}
+                    >
+                      {status}
+                    </button>
+                  ))}
+                </div>
+              )}
+              </div>
             </div>
           </div>
         </div>
