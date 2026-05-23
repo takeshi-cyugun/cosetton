@@ -27,6 +27,9 @@ export default function ItemsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState<string>('処分済以外');
   const [ownerFilter, setOwnerFilter] = useState<string>('すべて');
+  const [isOwnerFilterExpanded, setIsOwnerFilterExpanded] = useState(false);
+  const [seasonFilter, setSeasonFilter] = useState<string>('通年');
+  const [isSeasonFilterExpanded, setIsSeasonFilterExpanded] = useState(false);
   const [items, setItems] = useState<Item[]>([]);
   const [userName, setUserName] = useState('');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -127,11 +130,14 @@ export default function ItemsPage() {
   };
 
   // 所有者のリストを抽出（重複排除）
-  const owners = ['すべて', ...Array.from(new Set(items.map(item => item.owner).filter(Boolean)))];
+  const owners = ['すべて', ...Array.from(new Set(items.map(item => item.owner).filter(Boolean).filter(o => o !== 'すべて')))];
+  // シーズンのリスト（固定）
+  const seasons = ['通年', '春', '夏', '秋', '冬'];
 
   // フィルタリング処理
   const filteredItems = items.filter(item => 
-    (ownerFilter === 'すべて' || item.owner === ownerFilter) && 
+    (ownerFilter === 'すべて' || item.owner === ownerFilter) &&
+    (seasonFilter === '通年' || item.season === '通年' || item.season?.includes(seasonFilter)) &&
     item.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
     (
       statusFilter === 'すべて' 
@@ -214,24 +220,93 @@ export default function ItemsPage() {
             </select>
           </div>
 
-          {/* 所有者フィルタ (チップ形式) */}
-          <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-            {owners.map(owner => (
+          {/* フィルタエリア (プルダウン形式) */}
+          <div className="flex flex-wrap gap-2 items-center min-h-[40px] relative z-10">
+            {/* 所有者フィルタ */}
+            <div className="relative shrink-0">
               <button
-                key={owner}
                 onClick={() => {
-                  setOwnerFilter(owner);
-                  setCurrentPage(1);
+                  setIsOwnerFilterExpanded(!isOwnerFilterExpanded);
+                  setIsSeasonFilterExpanded(false);
                 }}
-                className={`px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
-                  ownerFilter === owner 
-                    ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20' 
-                    : 'bg-white text-slate-500 border border-slate-200 active:bg-slate-50'
-                }`}
+                className="px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all bg-emerald-600 text-white shadow-md shadow-emerald-500/20 flex items-center gap-1.5 shrink-0 active:scale-95"
               >
-                {owner}
+                <span className="opacity-70 font-medium text-[10px]">所有者:</span> {ownerFilter}
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  width="14" height="14" 
+                  viewBox="0 0 24 24" fill="none" 
+                  stroke="currentColor" strokeWidth="3" 
+                  strokeLinecap="round" strokeLinejoin="round"
+                  className={`transition-transform duration-200 ${isOwnerFilterExpanded ? 'rotate-180' : ''}`}
+                >
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
               </button>
-            ))}
+
+              {isOwnerFilterExpanded && (
+                <div className="absolute top-full left-0 mt-2 w-40 bg-white border border-slate-200 rounded-2xl shadow-xl py-1 animate-in slide-in-from-top-2 fade-in duration-200 z-50">
+                  {owners.map(owner => (
+                    <button
+                      key={owner}
+                      onClick={() => {
+                        setOwnerFilter(owner);
+                        setCurrentPage(1);
+                        setIsOwnerFilterExpanded(false);
+                      }}
+                      className={`w-full text-left px-4 py-2.5 text-xs font-bold transition-colors ${
+                        ownerFilter === owner ? 'text-emerald-600 bg-emerald-50' : 'text-slate-600 hover:bg-slate-50'
+                      }`}
+                    >
+                      {owner}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* シーズンフィルタ */}
+            <div className="relative shrink-0">
+              <button
+                onClick={() => {
+                  setIsSeasonFilterExpanded(!isSeasonFilterExpanded);
+                  setIsOwnerFilterExpanded(false);
+                }}
+                className="px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all bg-blue-600 text-white shadow-md shadow-blue-500/20 flex items-center gap-1.5 shrink-0 active:scale-95"
+              >
+                <span className="opacity-70 font-medium text-[10px]">シーズン:</span> {seasonFilter}
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  width="14" height="14" 
+                  viewBox="0 0 24 24" fill="none" 
+                  stroke="currentColor" strokeWidth="3" 
+                  strokeLinecap="round" strokeLinejoin="round"
+                  className={`transition-transform duration-200 ${isSeasonFilterExpanded ? 'rotate-180' : ''}`}
+                >
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </button>
+
+              {isSeasonFilterExpanded && (
+                <div className="absolute top-full left-0 mt-2 w-40 bg-white border border-slate-200 rounded-2xl shadow-xl py-1 animate-in slide-in-from-top-2 fade-in duration-200 z-50">
+                  {seasons.map(season => (
+                    <button
+                      key={season}
+                      onClick={() => {
+                        setSeasonFilter(season);
+                        setCurrentPage(1);
+                        setIsSeasonFilterExpanded(false);
+                      }}
+                      className={`w-full text-left px-4 py-2.5 text-xs font-bold transition-colors ${
+                        seasonFilter === season ? 'text-blue-600 bg-blue-50' : 'text-slate-600 hover:bg-slate-50'
+                      }`}
+                    >
+                      {season}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
