@@ -73,7 +73,10 @@ export default function RegisterPage() {
       // AI解析の実行
       try {
         setIsAnalyzing(true);
-        // console.log("AI解析を開始します...");
+        
+        // 10秒のタイムアウトを設定
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
         
         const formData = new FormData();
         formData.append('file', file);
@@ -81,7 +84,9 @@ export default function RegisterPage() {
         const response = await fetch(`${API_BASE_URL}/items/analyze`, {
           method: 'POST',
           body: formData,
+          signal: controller.signal,
         });
+        clearTimeout(timeoutId);
 
         if (response.ok) {
           const analysisResult = await response.json();
@@ -109,7 +114,12 @@ export default function RegisterPage() {
           }
         }
       } catch (error) {
-        console.error("AI解析中にエラーが発生しました:", error);
+        if ((error as Error).name === 'AbortError') {
+          console.warn("AI解析がタイムアウトしました。");
+          setToast({ message: '解析がタイムアウトしました。手動で入力してください。', type: 'error' });
+        } else {
+          console.error("AI解析中にエラーが発生しました:", error);
+        }
       } finally {
         setIsAnalyzing(false);
       }
