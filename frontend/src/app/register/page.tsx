@@ -20,6 +20,7 @@ export default function RegisterPage() {
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -63,11 +64,55 @@ export default function RegisterPage() {
     router.push('/login');
   };
 
-  const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
       setSelectedImage(file);
       setImagePreviewUrl(URL.createObjectURL(file));
+
+      // AI解析の実行
+      try {
+        setIsAnalyzing(true);
+        // console.log("AI解析を開始します...");
+        
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const response = await fetch(`${API_BASE_URL}/items/analyze`, {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (response.ok) {
+          const analysisResult = await response.json();
+          // console.log("AI解析結果:", analysisResult);
+          
+          // フォームに自動セット
+          if (analysisResult.name) setName(analysisResult.name);
+          if (analysisResult.category) setCategory(analysisResult.category);
+          
+          // シーズンの処理 (AIは "春,秋" のような文字列を返すので配列に変換)
+          if (analysisResult.season) {
+            const seasonsArray = analysisResult.season
+              .split(',')
+              .map((s: string) => s.trim())
+              .filter((s: string) => ['春', '夏', '秋', '冬', '通年'].includes(s));
+            
+            if (seasonsArray.length > 0) {
+              // 「通年」が含まれている場合はそれだけにする
+              if (seasonsArray.includes('通年')) {
+                setSeason(['通年']);
+              } else {
+                setSeason(seasonsArray);
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.error("AI解析中にエラーが発生しました:", error);
+      } finally {
+        setIsAnalyzing(false);
+      }
     } else {
       setSelectedImage(null);
       setImagePreviewUrl(null);
@@ -178,6 +223,18 @@ export default function RegisterPage() {
         </div>
       </header>
 
+      {/* AI解析中または登録中のオーバーレイ */}
+      {(isAnalyzing || isSubmitting) && (
+        <div className="fixed inset-0 bg-slate-900/10 backdrop-blur-[1px] z-50 flex items-center justify-center">
+          <div className="bg-white px-6 py-4 rounded-2xl shadow-xl flex items-center gap-3 border border-slate-100">
+            <div className="animate-spin h-5 w-5 border-3 border-blue-600 border-t-transparent rounded-full" />
+            <span className="font-bold text-slate-700">
+              {isAnalyzing ? 'AIが洋服を解析中...' : '登録しています...'}
+            </span>
+          </div>
+        </div>
+      )}
+
       <main className="max-w-md mx-auto px-4 py-4">
         <div className="space-y-4">
           <div>
@@ -214,6 +271,9 @@ export default function RegisterPage() {
                     onClick={() => {
                       setSelectedImage(null);
                       setImagePreviewUrl(null);
+                      setName('');
+                      setCategory('');
+                      setSeason([]);
                     }}
                     className="absolute -top-2 -right-2 bg-slate-400/60 text-white rounded-full p-1 shadow-lg hover:bg-slate-500/80 transition-colors border-2 border-white"
                   >
@@ -234,6 +294,7 @@ export default function RegisterPage() {
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
+              disabled={isAnalyzing}
               className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50"
               placeholder="洋服の名前"
             />
@@ -249,6 +310,7 @@ export default function RegisterPage() {
               id="size"
               value={size}
               onChange={(e) => setSize(e.target.value)}
+              disabled={isAnalyzing}
               className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50"
               placeholder="例: M, L, 28, Free"
             />
@@ -264,6 +326,7 @@ export default function RegisterPage() {
               id="category"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
+              disabled={isAnalyzing}
               className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50"
               placeholder="例: トップス, ボトムス, アウター"
             />
@@ -284,7 +347,7 @@ export default function RegisterPage() {
                       checked={season.includes(s)}
                       onChange={handleSeasonChange}
                       disabled={
-                        (season.includes('通年') && s !== '通年') ||
+                        isAnalyzing || (season.includes('通年') && s !== '通年') ||
                         ((season.includes('春') || season.includes('夏')) && !['春', '夏'].includes(s)) ||
                         ((season.includes('秋') || season.includes('冬')) && !['秋', '冬'].includes(s))
                       }
@@ -312,6 +375,7 @@ export default function RegisterPage() {
               id="status"
               value={status}
               onChange={(e) => setStatus(e.target.value)}
+              disabled={isAnalyzing}
               className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 bg-white"
             >
               <option value="現役">現役</option>
@@ -331,6 +395,7 @@ export default function RegisterPage() {
               id="owner"
               value={owner}
               onChange={(e) => setOwner(e.target.value)}
+              disabled={isAnalyzing}
               className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50"
               placeholder="例: 自分, 夫, 息子"
             />
@@ -344,6 +409,7 @@ export default function RegisterPage() {
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
+              disabled={isAnalyzing}
               rows={2}
               className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 resize-y"
               placeholder="洋服に関するメモなど"
@@ -352,12 +418,12 @@ export default function RegisterPage() {
 
           <button
             onClick={handleRegister}
-            disabled={isSubmitting}
+            disabled={isSubmitting || isAnalyzing}
             className={`w-full py-3 text-white rounded-lg font-bold shadow-lg transition-all active:scale-[0.98] ${
-              isSubmitting ? 'bg-slate-400' : 'bg-blue-600 shadow-blue-500/20'
+              isSubmitting || isAnalyzing ? 'bg-slate-400 cursor-not-allowed' : 'bg-blue-600 shadow-blue-500/20'
             }`}
           >
-            {isSubmitting ? '登録中...' : '登録'}
+            {isSubmitting ? '登録中...' : isAnalyzing ? 'AI解析中...' : '登録'}
           </button>
         </div>
       </main>

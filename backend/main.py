@@ -3,10 +3,13 @@ from datetime import datetime
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, File, UploadFile, Form
 from supabase import create_client, Client
+import io
+from PIL import Image
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import BaseModel
 from typing import List, Optional
+from analyze_clothing import get_clothing_attributes
 
 # ログの設定
 logging.basicConfig(
@@ -60,7 +63,7 @@ supabase: Client = create_client(settings.supabase_url, settings.supabase_key)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # 起動時の処理
-    logger.info("Application startup: Fetching initial data from Supabase...")
+    # logger.info("Application startup: Fetching initial data from Supabase...")
     try:
         fetch_and_log_items()
     except Exception as e:
@@ -86,16 +89,16 @@ app.add_middleware(
 
 def fetch_and_log_items(family_id: Optional[str] = None) -> List[dict]:
     """itemsテーブルから全件取得してログに出力する"""
-    logger.info(f"Fetching items from Supabase (family_id: {family_id})...")
+    # logger.info(f"Fetching items from Supabase (family_id: {family_id})...")
     try:
         query = supabase.table("items").select("*")
         if family_id:
             query = query.eq("family_id", family_id)
         response = query.order("id", desc=True).execute()
         items = response.data
-        logger.info(f"Successfully fetched {len(items)} items.")
-        for item in items: # ログ出力も詳細化
-            logger.info(f"Item ID: {item.get('id')} - Family: {item.get('family_id')} - Name: {item.get('name')} - Owner: {item.get('owner')} - Status: {item.get('status')}")
+        # logger.info(f"Successfully fetched {len(items)} items.")
+        # for item in items: # ログ出力も詳細化
+        #     logger.info(f"Item ID: {item.get('id')} - Family: {item.get('family_id')} - Name: {item.get('name')} - Owner: {item.get('owner')} - Status: {item.get('status')}")
         return items
     except Exception as e:
         logger.error(f"Error fetching items: {e}")
@@ -109,6 +112,22 @@ def get_items(familyId: Optional[str] = None):
     """
     items = fetch_and_log_items(familyId)
     return items
+
+@app.post("/items/analyze")
+async def analyze_item(file: UploadFile = File(...)):
+    """画像をAIで解析して属性を返す"""
+    try:
+        # 画像データを読み込む
+        request_object_content = await file.read()
+        img = Image.open(io.BytesIO(request_object_content))
+
+        # Gemini APIを使用して解析
+        result = get_clothing_attributes(img)
+        # logger.info(f"AI Analysis Result: {result}")
+        return result
+    except Exception as e:
+        logger.error(f"Error analyzing image: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.put("/items/{item_id}", response_model=Item)
 def update_item(item_id: int, item_update: ItemUpdate):

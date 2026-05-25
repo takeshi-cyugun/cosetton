@@ -53,14 +53,14 @@ export default function ItemsPage() {
 
     const fetchItems = async () => {
       try {
-        console.log("Fetching items from API...");
+        // console.log("Fetching items from API...");
         setLoading(true);
         const response = await fetch(`${API_BASE_URL}/items?familyId=${familyId}`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data: Item[] = await response.json();
-        console.log("Fetched data:", data);
+        // console.log("Fetched data:", data);
         setItems(data);
       } catch (e) {
         console.error("Fetch error details:", e);
