@@ -5,19 +5,21 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-05998b)](https://fastapi.tiangolo.com/)
 [![Drizzle ORM](https://img.shields.io/badge/Drizzle_ORM-latest-C5F74F)](https://orm.drizzle.team/)
 [![Supabase](https://img.shields.io/badge/Supabase-BaaS-3ecf8e)](https://supabase.com/)
+[![Google AI](https://img.shields.io/badge/Google_AI-Gemini-4285F4?logo=googlegemini&logoColor=white)](https://ai.google.dev/)
+[![Render](https://img.shields.io/badge/Render-Deployment-46E3B7?logo=render&logoColor=white)](https://render.com/)
 
-**子供の成長を記録し、家族で共有するモバイルファーストな在庫管理プラットフォーム**
+**家族の「今」を共有する、クラウド上のデジタルクローゼット・マネージャー**
 
 ## 🌟 プロジェクト概要
 
-「せっかく買った服が、気づいたらサイズアウトしていた」「上の子の服がどこにあるか分からない」という育児の課題を解決するために開発されました。
-**Closetton** は、単なるリスト管理ではなく、忙しい育児の合間に「片手で・直感的に」在庫を把握できる体験を提供します。
+「あの服、どこに仕舞ったっけ？」「今、家にある服でコーディネートできるかな？」という家族の疑問を解消するために開発されました。
+**Closetton** は、家中のクローゼットをクラウドで共有し、家族の誰もが「いつでも・どこでも・直感的に」在庫を把握・管理できるデジタル空間を提供します。
 
 ### 解決する課題
 
-- **管理漏れの防止**: サイズ・季節・状態による強力なフィルタリング。
-- **情報の非対称性の解消**: 家族間でのリアルタイムなデータ共有（実装予定）。
-- **買い替えの最適化**: 在庫の可視化による、無駄な買い物の削減。
+- **情報の共有化**: 家族の誰が何を持っているか、どこにあるかをリアルタイムに共有。
+- **AIによる整理の自動化**: Google Gemini APIを活用し、写真一枚で面倒なタグ付けを自動化。
+- **無駄な買い物の削減**: 外出先でも現在の在庫を確認でき、重複購入や死蔵品を防ぎます。
 
 ## 🏗 システムアーキテクチャ
 
@@ -38,9 +40,14 @@ graph LR
         Storage[Supabase Storage]
     end
 
+    subgraph "AI Service"
+        Gemini[Google AI / Gemini API]
+    end
+
     NextJS -- "REST API (JSON)" --> FastAPI
     FastAPI -- "CRUD / Auth Check" --> DB
     FastAPI -- "Upload / Download" --> Storage
+    FastAPI -- "Image Analysis / Auto Tagging" --> Gemini
     NextJS -- "Session" --> Auth
 ```
 
