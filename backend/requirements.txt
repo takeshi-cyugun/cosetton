@@ -3,3 +3,6 @@ uvicorn
 supabase
 pydantic-settings
 python-multipart
+Pillow
+google-generativeai
+python-dotenv
