@@ -76,7 +76,7 @@ export default function RegisterPage() {
         
         // 10秒のタイムアウトを設定
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 15000);
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
         
         const formData = new FormData();
         formData.append('file', file);
@@ -115,10 +115,10 @@ export default function RegisterPage() {
         }
       } catch (error) {
         if ((error as Error).name === 'AbortError') {
-          console.warn("AI解析がタイムアウトしました。");
+          // console.warn("AI解析がタイムアウトしました。");
           setToast({ message: '解析がタイムアウトしました。手動で入力してください。', type: 'error' });
         } else {
-          console.error("AI解析中にエラーが発生しました:", error);
+          // console.error("AI解析中にエラーが発生しました:", error);
         }
       } finally {
         setIsAnalyzing(false);
