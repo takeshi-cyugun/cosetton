@@ -142,7 +142,8 @@ export default function ItemsPage() {
     (seasonFilter === '通年' || item.season === '通年' || item.season?.includes(seasonFilter)) &&
     searchWords.every(word =>
       item.name.toLowerCase().includes(word) ||
-      item.category.toLowerCase().includes(word)
+      item.category.toLowerCase().includes(word) ||
+      item.description?.toLowerCase().includes(word)
     ) &&
     (
       statusFilter === 'すべて' 

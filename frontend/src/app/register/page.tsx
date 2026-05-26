@@ -413,7 +413,7 @@ export default function RegisterPage() {
 
           <div>
             <label htmlFor="description" className="block text-sm font-medium text-slate-700 mb-1">
-              説明 (任意)
+              説明 ・収納場所(任意)
             </label>
             <textarea
               id="description"
