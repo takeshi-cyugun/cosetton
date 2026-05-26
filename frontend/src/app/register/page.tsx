@@ -74,9 +74,9 @@ export default function RegisterPage() {
       try {
         setIsAnalyzing(true);
         
-        // 10秒のタイムアウトを設定
+        // 30秒のタイムアウトを設定
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000);
+        const timeoutId = setTimeout(() => controller.abort(), 30000);
         
         const formData = new FormData();
         formData.append('file', file);
@@ -90,7 +90,7 @@ export default function RegisterPage() {
 
         if (response.ok) {
           const analysisResult = await response.json();
-          // console.log("AI解析結果:", analysisResult);
+          console.log("AI解析結果:", analysisResult);
           
           // フォームに自動セット
           if (analysisResult.name) setName(analysisResult.name);
