@@ -40,6 +40,42 @@ export default function ItemsPage() {
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
+  // スワイプ操作のための状態
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd || !selectedItem) return;
+    
+    const distance = touchStart - touchEnd;
+    const minSwipeDistance = 50; // スワイプと判定する最小距離
+
+    if (Math.abs(distance) > minSwipeDistance) {
+      const currentIndex = filteredItems.findIndex(item => item.id === selectedItem.id);
+      if (currentIndex !== -1) {
+        let nextIndex;
+        if (distance > 0) {
+          // 左スワイプ（次へ）
+          nextIndex = (currentIndex + 1) % filteredItems.length;
+        } else {
+          // 右スワイプ（前へ）
+          nextIndex = (currentIndex - 1 + filteredItems.length) % filteredItems.length;
+        }
+        setSelectedItem(filteredItems[nextIndex]);
+        setIsEditing(false); // 切り替え時に編集モードをリセット
+      }
+    }
+  };
+
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
   useEffect(() => {
@@ -430,8 +466,12 @@ export default function ItemsPage() {
             setSelectedItem(null);
             setIsEditing(false);
           }}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
         >
           <div 
+            key={selectedItem.id}
             className="bg-white w-full max-w-sm rounded-[2.5rem] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300"
             onClick={(e) => e.stopPropagation()} // モーダル内クリックで閉じないように
           >
