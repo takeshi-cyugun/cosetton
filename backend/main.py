@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 class Settings(BaseSettings):
     # .env から自動的に読み込まれます
     supabase_url: str
-    supabase_key: str
+    supabase_service_role_key: str
     
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
@@ -58,7 +58,7 @@ class ItemCreate(BaseModel):
 settings = Settings()
 
 # Supabase クライアントの初期化
-supabase: Client = create_client(settings.supabase_url, settings.supabase_key)
+supabase: Client = create_client(settings.supabase_url, settings.supabase_service_role_key)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
