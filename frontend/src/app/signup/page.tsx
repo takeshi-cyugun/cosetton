@@ -73,13 +73,13 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-12">
+    <div className="min-h-screen bg-[#f4f1f0] pb-12">
       {/* ヘッダー */}
-      <header className="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-20 border-b border-slate-200">
+      <header className="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-20 border-b border-stone-200">
         <div className="max-w-md mx-auto px-4 py-3 flex items-center">
           <button
             onClick={() => phase === 'confirm' ? setPhase('input') : router.back()}
-            className="text-slate-600 hover:text-slate-800 transition-colors"
+            className="text-stone-600 hover:text-stone-800 transition-colors"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
           </button>
@@ -93,37 +93,37 @@ export default function SignupPage() {
         {phase === 'input' ? (
           <div className="space-y-6">
             {/* モード切り替え */}
-            <div className="flex bg-slate-200 p-1 rounded-2xl">
+            <div className="flex bg-stone-200 p-1 rounded-2xl">
               <button
                 onClick={() => setMode('create')}
-                className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${mode === 'create' ? 'bg-white shadow-sm text-blue-600' : 'text-slate-500'}`}
+                className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${mode === 'create' ? 'bg-white shadow-sm text-stone-800' : 'text-stone-500'}`}
               >
                 新しく家族IDを作る
               </button>
               <button
                 onClick={() => setMode('join')}
-                className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${mode === 'join' ? 'bg-white shadow-sm text-blue-600' : 'text-slate-500'}`}
+                className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${mode === 'join' ? 'bg-white shadow-sm text-stone-800' : 'text-stone-500'}`}
               >
                 家族IDに参加する
               </button>
             </div>
 
-            <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 space-y-4">
+            <div className="bg-white rounded-3xl p-6 shadow-sm border border-stone-100 space-y-4">
               {mode === 'create' && (
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 mb-1 ml-1 uppercase">代表者のメールアドレス</label>
+                  <label className="block text-xs font-bold text-stone-400 mb-1 ml-1 uppercase">代表者のメールアドレス</label>
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="example@closetton.com"
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm"
+                    className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-stone-500/10 text-sm"
                   />
                 </div>
               )}
 
               <div>
-                <label className="block text-xs font-bold text-slate-400 mb-1 ml-1 uppercase">
+                <label className="block text-xs font-bold text-stone-400 mb-1 ml-1 uppercase">
                   {mode === 'create' ? '家族ID' : '家族IDまたは代表者のメールアドレス'}
                 </label>
                 <input
@@ -131,21 +131,21 @@ export default function SignupPage() {
                   value={familyId}
                   onChange={(e) => setFamilyId(e.target.value)}
                   placeholder={mode === 'create' ? "5文字以上のID" : "IDまたはメールアドレス"}
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm"
+                  className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-stone-500/10 text-sm"
                 />
                 {mode === 'create' && (
-                  <p className="text-[10px] text-slate-400 mt-1 ml-1">※5〜50文字、2種類以上の文字種</p>
+                  <p className="text-[10px] text-stone-400 mt-1 ml-1">※5〜50文字、2種類以上の文字種</p>
                 )}
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-400 mb-1 ml-1 uppercase">あなたの名前</label>
+                <label className="block text-xs font-bold text-stone-400 mb-1 ml-1 uppercase">あなたの名前</label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="例: パパ、ママ"
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm"
+                  className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-stone-500/10 text-sm"
                 />
               </div>
 
@@ -158,7 +158,7 @@ export default function SignupPage() {
 
             <button
               onClick={handleToConfirm}
-              className="w-full py-4 bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-500/20 active:scale-[0.98] transition-all"
+              className="w-full py-4 bg-stone-700 text-white rounded-2xl font-bold shadow-lg shadow-stone-500/10 active:scale-[0.98] transition-all"
             >
               確認画面へ進む
             </button>
@@ -184,7 +184,7 @@ export default function SignupPage() {
                   <span className="text-[10px] font-bold text-slate-400 block uppercase">
                     {mode === 'create' ? '家族ID' : '家族IDまたは代表者のメールアドレス'}
                   </span>
-                  <p className="text-sm font-bold text-blue-600">{familyId}</p>
+                  <p className="text-sm font-bold text-stone-700">{familyId}</p>
                 </div>
                 <div>
                   <span className="text-[10px] font-bold text-slate-400 block uppercase">登録する名前</span>
@@ -197,7 +197,7 @@ export default function SignupPage() {
               <button
                 onClick={handleRegister}
                 disabled={isLoading}
-                className="w-full py-4 bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                className="w-full py-4 bg-stone-800 text-white rounded-2xl font-bold shadow-lg shadow-stone-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
               >
                 {isLoading && (
                   <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
@@ -220,8 +220,8 @@ export default function SignupPage() {
       {/* ローディング・オーバーレイ */}
       {isLoading && (
         <div className="fixed inset-0 bg-slate-900/10 backdrop-blur-[2px] z-50 flex items-center justify-center">
-          <div className="bg-white px-8 py-6 rounded-3xl shadow-xl flex flex-col items-center gap-4 border border-slate-100">
-            <div className="animate-spin h-8 w-8 border-4 border-blue-600 border-t-transparent rounded-full" />
+          <div className="bg-white px-8 py-6 rounded-3xl shadow-xl flex flex-col items-center gap-4 border border-stone-50">
+            <div className="animate-spin h-8 w-8 border-4 border-stone-700 border-t-transparent rounded-full" />
             <span className="font-bold text-slate-700">アカウントを作成しています...</span>
           </div>
         </div>

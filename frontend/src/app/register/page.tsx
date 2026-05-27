@@ -194,13 +194,13 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24">
+    <div className="min-h-screen bg-[#f4f1f0] pb-24">
       {/* ヘッダー */}
-      <header className="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-20 border-b border-slate-200">
+      <header className="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-20 border-b border-stone-200">
         <div className="max-w-md mx-auto px-4 py-3 flex justify-between items-center">
           <button
             onClick={() => router.back()}
-            className="text-slate-600 hover:text-slate-800 transition-colors"
+            className="text-stone-600 hover:text-stone-800 transition-colors"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
           </button>
@@ -209,16 +209,16 @@ export default function RegisterPage() {
           <div className="relative" ref={menuRef}>
             <button 
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="w-9 h-9 rounded-full bg-blue-100 border border-blue-200 flex items-center justify-center text-blue-700 font-bold text-sm shadow-sm active:scale-90 transition-transform"
+              className="w-9 h-9 rounded-full bg-stone-200 border border-stone-300 flex items-center justify-center text-stone-700 font-bold text-sm shadow-sm active:scale-90 transition-transform"
             >
               {userName ? userName.charAt(0) : 'U'}
             </button>
 
             {isMenuOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 animate-in fade-in zoom-in-95 duration-200 z-50">
-                <div className="px-4 py-2 border-b border-slate-50">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase">ログイン中</p>
-                  <p className="text-sm font-bold text-slate-700 truncate">{userName} さん</p>
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-stone-100 py-2 animate-in fade-in zoom-in-95 duration-200 z-50">
+                <div className="px-4 py-2 border-b border-stone-50">
+                  <p className="text-[10px] font-bold text-stone-400 uppercase">ログイン中</p>
+                  <p className="text-sm font-bold text-stone-700 truncate">{userName} さん</p>
                 </div>
                 <button 
                   onClick={handleLogout}
@@ -235,10 +235,10 @@ export default function RegisterPage() {
 
       {/* AI解析中または登録中のオーバーレイ */}
       {(isAnalyzing || isSubmitting) && (
-        <div className="fixed inset-0 bg-slate-900/10 backdrop-blur-[1px] z-50 flex items-center justify-center">
-          <div className="bg-white px-6 py-4 rounded-2xl shadow-xl flex items-center gap-3 border border-slate-100">
-            <div className="animate-spin h-5 w-5 border-3 border-blue-600 border-t-transparent rounded-full" />
-            <span className="font-bold text-slate-700">
+        <div className="fixed inset-0 bg-stone-900/10 backdrop-blur-[1px] z-50 flex items-center justify-center">
+          <div className="bg-white px-6 py-4 rounded-2xl shadow-xl flex items-center gap-3 border border-stone-100">
+            <div className="animate-spin h-5 w-5 border-3 border-stone-700 border-t-transparent rounded-full" />
+            <span className="font-bold text-stone-700">
               {isAnalyzing ? 'AIが洋服を解析中...' : '登録しています...'}
             </span>
           </div>
@@ -248,7 +248,7 @@ export default function RegisterPage() {
       <main className="max-w-md mx-auto px-4 py-4">
         <div className="space-y-4">
           <div>
-            <label className="flex items-center text-sm font-medium text-slate-700 mb-1">
+            <label className="flex items-center text-sm font-medium text-stone-700 mb-1">
               画像
               <span className="ml-2 px-1.5 py-0.5 bg-red-50 text-red-500 text-[10px] font-bold rounded border border-red-100">必須</span>
             </label>
@@ -257,7 +257,7 @@ export default function RegisterPage() {
                 <div className="flex items-center gap-3 justify-center"> {/* ボタンと隠しinputを中央に配置 */}
                   <label
                     htmlFor="image"
-                    className="cursor-pointer inline-flex items-center px-4 py-2 bg-blue-50 text-blue-700 text-sm font-semibold rounded-full hover:bg-blue-100 transition-colors border border-blue-100"
+                    className="cursor-pointer inline-flex items-center px-4 py-2 bg-stone-100 text-stone-700 text-sm font-semibold rounded-full hover:bg-stone-200 transition-colors border border-stone-200"
                   >
                     画像を選択
                   </label>
@@ -285,7 +285,7 @@ export default function RegisterPage() {
                       setCategory('');
                       setSeason([]);
                     }}
-                    className="absolute -top-2 -right-2 bg-slate-400/60 text-white rounded-full p-1 shadow-lg hover:bg-slate-500/80 transition-colors border-2 border-white"
+                    className="absolute -top-2 -right-2 bg-stone-400/60 text-white rounded-full p-1 shadow-lg hover:bg-stone-500/80 transition-colors border-2 border-white"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                   </button>
@@ -295,7 +295,7 @@ export default function RegisterPage() {
           </div>
 
           <div>
-            <label htmlFor="name" className="flex items-center text-sm font-medium text-slate-700 mb-1">
+            <label htmlFor="name" className="flex items-center text-sm font-medium text-stone-700 mb-1">
               名前
               <span className="ml-2 px-1.5 py-0.5 bg-red-50 text-red-500 text-[10px] font-bold rounded border border-red-100">必須</span>
             </label>
@@ -305,13 +305,13 @@ export default function RegisterPage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               disabled={isAnalyzing}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+              className="w-full px-4 py-2 bg-white border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-stone-500/20"
               placeholder="洋服の名前"
             />
           </div>
 
           <div>
-            <label htmlFor="size" className="flex items-center text-sm font-medium text-slate-700 mb-1">
+            <label htmlFor="size" className="flex items-center text-sm font-medium text-stone-700 mb-1">
               サイズ
               <span className="ml-2 px-1.5 py-0.5 bg-red-50 text-red-500 text-[10px] font-bold rounded border border-red-100">必須</span>
             </label>
@@ -321,13 +321,13 @@ export default function RegisterPage() {
               value={size}
               onChange={(e) => setSize(e.target.value)}
               disabled={isAnalyzing}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+              className="w-full px-4 py-2 bg-white border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-stone-500/20"
               placeholder="例: M, L, 28, Free"
             />
           </div>
 
           <div>
-            <label htmlFor="category" className="flex items-center text-sm font-medium text-slate-700 mb-1">
+            <label htmlFor="category" className="flex items-center text-sm font-medium text-stone-700 mb-1">
               カテゴリー
               <span className="ml-2 px-1.5 py-0.5 bg-red-50 text-red-500 text-[10px] font-bold rounded border border-red-100">必須</span>
             </label>
@@ -337,13 +337,13 @@ export default function RegisterPage() {
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               disabled={isAnalyzing}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+              className="w-full px-4 py-2 bg-white border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-stone-500/20"
               placeholder="例: トップス, ボトムス, アウター"
             />
           </div>
 
           <div>
-            <label className="flex items-center text-sm font-medium text-slate-700 mb-2">
+            <label className="flex items-center text-sm font-medium text-stone-700 mb-2">
               シーズン
               <span className="ml-2 px-1.5 py-0.5 bg-red-50 text-red-500 text-[10px] font-bold rounded border border-red-100">必須</span>
             </label>
@@ -361,7 +361,7 @@ export default function RegisterPage() {
                         ((season.includes('春') || season.includes('夏')) && !['春', '夏'].includes(s)) ||
                         ((season.includes('秋') || season.includes('冬')) && !['秋', '冬'].includes(s))
                       }
-                      className="w-5 h-5 border-2 border-slate-300 rounded-md checked:bg-blue-600 checked:border-blue-600 appearance-none transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+                      className="w-5 h-5 bg-white border-2 border-stone-300 rounded-md checked:bg-stone-700 checked:border-stone-700 appearance-none transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
                     />
                     <svg 
                       className={`absolute left-0.5 top-0.5 w-4 h-4 text-white pointer-events-none transition-opacity ${season.includes(s) ? 'opacity-100' : 'opacity-0'}`} 
@@ -370,14 +370,14 @@ export default function RegisterPage() {
                       <polyline points="20 6 9 17 4 12"></polyline>
                     </svg>
                   </div>
-                  <span className={`text-sm font-bold ${season.includes(s) ? 'text-blue-600' : 'text-slate-500'}`}>{s}</span>
+                  <span className={`text-sm font-bold ${season.includes(s) ? 'text-stone-800' : 'text-stone-500'}`}>{s}</span>
                 </label>
               ))}
             </div>
           </div>
 
           <div>
-            <label htmlFor="status" className="flex items-center text-sm font-medium text-slate-700 mb-1">
+            <label htmlFor="status" className="flex items-center text-sm font-medium text-stone-700 mb-1">
               ステータス
               <span className="ml-2 px-1.5 py-0.5 bg-red-50 text-red-500 text-[10px] font-bold rounded border border-red-100">必須</span>
             </label>
@@ -386,7 +386,7 @@ export default function RegisterPage() {
               value={status}
               onChange={(e) => setStatus(e.target.value)}
               disabled={isAnalyzing}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 bg-white"
+              className="w-full px-4 py-2 border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-stone-500/20 bg-white"
             >
               <option value="現役">現役</option>
               <option value="保管中">保管中</option>
@@ -396,7 +396,7 @@ export default function RegisterPage() {
           </div>
 
           <div>
-            <label htmlFor="owner" className="flex items-center text-sm font-medium text-slate-700 mb-1">
+            <label htmlFor="owner" className="flex items-center text-sm font-medium text-stone-700 mb-1">
               所有者
               <span className="ml-2 px-1.5 py-0.5 bg-red-50 text-red-500 text-[10px] font-bold rounded border border-red-100">必須</span>
             </label>
@@ -406,13 +406,13 @@ export default function RegisterPage() {
               value={owner}
               onChange={(e) => setOwner(e.target.value)}
               disabled={isAnalyzing}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+              className="w-full px-4 py-2 bg-white border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-stone-500/20"
               placeholder="例: 自分, 夫, 息子"
             />
           </div>
 
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-slate-700 mb-1">
+            <label htmlFor="description" className="block text-sm font-medium text-stone-700 mb-1">
               説明 ・収納場所(任意)
             </label>
             <textarea
@@ -421,7 +421,7 @@ export default function RegisterPage() {
               onChange={(e) => setDescription(e.target.value)}
               disabled={isAnalyzing}
               rows={2}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 resize-y"
+              className="w-full px-4 py-2 bg-white border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-stone-500/20 resize-y"
               placeholder="洋服に関するメモなど"
             ></textarea>
           </div>
@@ -430,7 +430,7 @@ export default function RegisterPage() {
             onClick={handleRegister}
             disabled={isSubmitting || isAnalyzing}
             className={`w-full py-3 text-white rounded-lg font-bold shadow-lg transition-all active:scale-[0.98] ${
-              isSubmitting || isAnalyzing ? 'bg-slate-400 cursor-not-allowed' : 'bg-blue-600 shadow-blue-500/20'
+              isSubmitting || isAnalyzing ? 'bg-stone-400 cursor-not-allowed' : 'bg-stone-700 shadow-stone-500/10'
             }`}
           >
             {isSubmitting ? '登録中...' : isAnalyzing ? 'AI解析中...' : '登録'}
