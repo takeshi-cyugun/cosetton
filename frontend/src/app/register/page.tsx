@@ -21,6 +21,7 @@ export default function RegisterPage() {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [rotation, setRotation] = useState(0);
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -69,6 +70,7 @@ export default function RegisterPage() {
       const file = event.target.files[0];
       setSelectedImage(file);
       setImagePreviewUrl(URL.createObjectURL(file));
+      setRotation(0); // 新しい画像を選択した際は回転をリセット
 
       // AI解析の実行
       try {
@@ -167,6 +169,7 @@ export default function RegisterPage() {
       formData.append('familyId', familyId); // familyIdを追加
       formData.append('owner', owner);
       formData.append('description', description);
+      formData.append('rotation', rotation.toString()); // 回転情報を追加
 
       const response = await fetch(`${API_BASE_URL}/items`, {
         method: 'POST',
@@ -270,12 +273,26 @@ export default function RegisterPage() {
                   />
                 </div>
               ) : (
-                <div className="relative inline-block mt-2"> {/* inline-block要素は親のtext-centerで中央揃えになります */}
+                <div className="relative inline-block mt-4 mb-4"> {/* 回転を考慮して余白を調整 */}
                   <img 
                     src={imagePreviewUrl || ''} 
                     alt="Image Preview" 
-                    className="max-w-full h-auto rounded-lg shadow-md object-cover max-h-64" 
+                    className="max-w-full h-auto rounded-lg shadow-md object-cover max-h-64 transition-transform duration-300" 
+                    style={{ transform: `rotate(${rotation}deg)` }}
                   />
+                  {/* 回転ボタン */}
+                  <button
+                    type="button"
+                    onClick={() => setRotation((prev) => (prev + 90) % 360)}
+                    className="absolute -top-2 -left-2 bg-stone-100 text-stone-700 rounded-full p-2 shadow-lg hover:bg-stone-200 transition-colors border-2 border-white z-10"
+                    title="画像を回転"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"></path>
+                      <polyline points="21 3 21 8 16 8"></polyline>
+                    </svg>
+                  </button>
+                  {/* 削除ボタン */}
                   <button
                     type="button"
                     onClick={() => {
@@ -284,8 +301,9 @@ export default function RegisterPage() {
                       setName('');
                       setCategory('');
                       setSeason([]);
+                      setRotation(0);
                     }}
-                    className="absolute -top-2 -right-2 bg-stone-400/60 text-white rounded-full p-1 shadow-lg hover:bg-stone-500/80 transition-colors border-2 border-white"
+                    className="absolute -top-2 -right-2 bg-stone-400/60 text-white rounded-full p-1 shadow-lg hover:bg-stone-500/80 transition-colors border-2 border-white z-10"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                   </button>
